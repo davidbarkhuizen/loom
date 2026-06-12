@@ -2,11 +2,13 @@ from typing import Any
 
 from ollama import AsyncClient
 
-from config import OllamaConfig
+from config import LoomConfig, OllamaConfig
 from harness_commands.abstract import AbstractSystemCommand
 from harness_commands.active_model import ActiveModelCommand
 from harness_commands.list_models import ListModelsCommand
 from harness_commands.switch_model import SwitchModelCommand
+from harness_commands.switch_thinking_mode import SwitchThinkingModeCommand
+from model import ThinkingMode
 
 
 def new_async_client(host: str, port: int) -> AsyncClient:
@@ -14,36 +16,51 @@ def new_async_client(host: str, port: int) -> AsyncClient:
     return AsyncClient(host=url)
 
 
-SYSTEM_COMMANDS = [ListModelsCommand, SwitchModelCommand, ActiveModelCommand]
+SYSTEM_COMMANDS = [ListModelsCommand, SwitchModelCommand, ActiveModelCommand, SwitchThinkingModeCommand]
 
 
-async def weave(host: str, port: int, model: str):
+async def weave(config: LoomConfig):
+
+    host: str = config.ollama.host
+    port: int = config.ollama.port
     client: AsyncClient = new_async_client(host, port)
-    _model: str = model
 
-    def get_config() -> OllamaConfig:
-        return OllamaConfig(host=host, port=port, model=_model)
+    _model: str = config.model.model
+    _thinking_mode: ThinkingMode = config.model.thinking_mode
+
+    def get_active_config() -> OllamaConfig:
+        return OllamaConfig(host=host, port=port)
 
     def reconfigure(setting: str, value: Any) -> bool:
         nonlocal _model
+        nonlocal _thinking_mode
 
         match setting:
             case "model":
                 _model = str(value)
+            case "thinking_mode":
+                _thinking_mode = [v for _, v in ThinkingMode.__members__.items() if v.value == value][0]
             case _:
                 return False
 
         return True
 
     def register_system_commands(client: AsyncClient) -> list[AbstractSystemCommand]:
-        return [X(client, get_config, reconfigure) for X in SYSTEM_COMMANDS]
+        return [X(client, get_active_config, reconfigure) for X in SYSTEM_COMMANDS]
 
     registered_system_commands = register_system_commands(client)
 
-    async def invoke(invocation: str) -> str:
-        nonlocal _model
+    def new_user_message(text: str) -> dict[str, str | None]:
+        return {
+            "content": text,
+            "role": "user",
+            "thinking": _thinking_mode.value if _thinking_mode != ThinkingMode.NO else None,
+        }
 
-        message = {"content": invocation, "role": "user"}
+    async def invoke(invocation: str) -> str:
+        # nonlocal _model
+
+        message = new_user_message(invocation)
 
         stream = await client.chat(model=_model, messages=[message], stream=True)
 

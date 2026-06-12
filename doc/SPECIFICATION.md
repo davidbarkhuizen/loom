@@ -12,6 +12,10 @@
 - set additional arguments - e.g. think - from config
 - change to submitting chat content in json format
 
+checks
+- confirm that model returned in response matches that specifed in the request
+  * model='qwen2.5-coder:14b'
+
 ### 2 - minimum semantic information 
 
     class ContextItemType(Enum):
@@ -40,7 +44,7 @@
 
 ### 3 - file based output
 
-- provide an input file
-- obtain an output file
+- provide a set of input files (text)
+- obtain a single output file
 
-next obj
+#### 4 - allow user to cancel in the middle of a response/processing

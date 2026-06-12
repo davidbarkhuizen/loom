@@ -1,8 +1,11 @@
 {
   "ollama": {
     "host": "192.168.1.88",
-    "port": 11434,
-    "model": "qwen2.5-coder:14b"
+    "port": 11434
+  },
+  "model": {
+    "model": "qwen2.5-coder:14b",
+    "thinking_mode": "high"
   },
   "log": { "root_folder": "log" }
 }

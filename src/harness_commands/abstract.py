@@ -3,21 +3,21 @@ from typing import Any, Callable
 
 from ollama import AsyncClient
 
-from config import OllamaConfig
+from config import LoomConfig, OllamaConfig
 
 
 class AbstractSystemCommand(ABC):
     def __init__(
-        self, async_client: AsyncClient, get_config: Callable[[], OllamaConfig], reconfigure: Callable[[str, Any], bool]
+        self, async_client: AsyncClient, get_config: Callable[[], LoomConfig], reconfigure: Callable[[str, Any], bool]
     ):
         self._async_client: AsyncClient = async_client
-        self._get_config: Callable[[], OllamaConfig] = get_config
+        self._get_config: Callable[[], LoomConfig] = get_config
         self._reconfigure: Callable[[str, Any], bool] = reconfigure
 
     def client(self) -> AsyncClient:
         return self._async_client
 
-    def config(self) -> OllamaConfig:
+    def config(self) -> LoomConfig:
         return self._get_config()
 
     def reconfigure(self, setting: str, value: Any) -> bool:
