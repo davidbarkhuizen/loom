@@ -22,11 +22,17 @@ async def communicate(client: AsyncClient, model: str, role: str, text: str, thi
 
         thinking: str | None = part["message"].thinking
         if thinking:
+            if not thinking_text:
+                print("Thinking")
+
             thinking_text += thinking
             print(thinking, end="", flush=True)
 
         content: str = part["message"]["content"]
         if content:
+            if not response_text:
+                print("Content")
+
             response_text += content
             print(content, end="", flush=True)
 

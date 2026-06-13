@@ -23,7 +23,7 @@ class TaskCommand(AbstractSystemCommand):
 
         task_specification: str = await load_task_specification_from_file(task_file_path)
 
-        response_lines: list[str] = await communicate(
+        _: list[str] = await communicate(
             client=self.client(),
             model=config.model.model,
             role="user",
@@ -31,4 +31,4 @@ class TaskCommand(AbstractSystemCommand):
             think=config.model.think,
         )
 
-        return response_lines
+        return [""]

@@ -2,12 +2,23 @@
 
 ## context / restrictions / guidance
 
-- reply only with python code
+- reply only with a python code file
 - return the contents of single python code file that accomplishes the objectives
 - do not comment the python file
 
-## objectives / goals of the code
 
-- load the contents of a text file as a single string
-- the file operation must be asynchronous
-- use a non std-lib module if appropriate
+## objectives / goals
+
+- Design a class as described below.
+
+```
+class name : MyClass
+function: function name - display(), parameters - none, return type - void , access modifier - public, function body - should print "Hello World"
+```
+
+Note: The driver's code will call the display function of the MyClass
+
+Example:
+
+Input: None
+Output: "Hello World"
