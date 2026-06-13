@@ -1,9 +1,10 @@
 from chat import communicate
 from config import LoomConfig
-from harness_commands.abstract import AbstractSystemCommand
+from harness_commands.abstract import AbstractHarnessCommand
+from model import CommunicationResponse
 
 
-class InvokeCommand(AbstractSystemCommand):
+class InvokeCommand(AbstractHarnessCommand):
     @property
     def command(self) -> str:
         return "invoke"
@@ -14,7 +15,7 @@ class InvokeCommand(AbstractSystemCommand):
 
         text = " ".join(args)
 
-        _: list[str] = await communicate(
+        _: CommunicationResponse = await communicate(
             client=self.client(), model=config.model.model, system="", user=[text], think=config.model.think
         )
 

@@ -6,7 +6,7 @@ from ollama import AsyncClient
 from config import LoomConfig
 
 
-class AbstractSystemCommand(ABC):
+class AbstractHarnessCommand(ABC):
     def __init__(
         self, async_client: AsyncClient, get_config: Callable[[], LoomConfig], reconfigure: Callable[[str, Any], bool]
     ):

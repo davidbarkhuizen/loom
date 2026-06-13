@@ -2,8 +2,9 @@ from typing import Any
 
 from ollama import AsyncClient
 
+from chat import new_async_ollama_client
 from config import LoomConfig, ModelConfig
-from harness_commands.abstract import AbstractSystemCommand
+from harness_commands.abstract import AbstractHarnessCommand
 from harness_commands.active_model import ActiveModelCommand
 from harness_commands.invoke import InvokeCommand
 from harness_commands.list_models import ListModelsCommand
@@ -11,13 +12,7 @@ from harness_commands.switch_model import SwitchModelCommand
 from harness_commands.switch_thinking_mode import SwitchThinkingModeCommand
 from harness_commands.task import TaskCommand
 
-
-def new_async_client(host: str, port: int) -> AsyncClient:
-    url: str = f"http://{host}:{port}"
-    return AsyncClient(host=url)
-
-
-SYSTEM_COMMANDS = [
+HARNESS_COMMANDS = [
     ListModelsCommand,
     SwitchModelCommand,
     ActiveModelCommand,
@@ -32,7 +27,7 @@ async def weave(config: LoomConfig):
 
     host: str = config.ollama.host
     port: int = config.ollama.port
-    client: AsyncClient = new_async_client(host, port)
+    client: AsyncClient = new_async_ollama_client(host, port)
 
     _model: str = config.model.model
     _think: bool = config.model.think
@@ -54,8 +49,8 @@ async def weave(config: LoomConfig):
 
         return True
 
-    def register_system_commands(client: AsyncClient) -> list[AbstractSystemCommand]:
-        return [X(client, get_active_config, reconfigure) for X in SYSTEM_COMMANDS]
+    def register_system_commands(client: AsyncClient) -> list[AbstractHarnessCommand]:
+        return [X(client, get_active_config, reconfigure) for X in HARNESS_COMMANDS]
 
     registered_system_commands = register_system_commands(client)
 

@@ -4,11 +4,11 @@ from pathlib import Path
 from chat import communicate
 from config import LoomConfig
 from file_utils import read_text_file_async, write_text_file_async
-from harness_commands.abstract import AbstractSystemCommand
+from harness_commands.abstract import AbstractHarnessCommand
 from model import CommunicationResponse
 
 
-class TaskCommand(AbstractSystemCommand):
+class TaskCommand(AbstractHarnessCommand):
     @property
     def command(self) -> str:
         return "task"
@@ -24,8 +24,8 @@ class TaskCommand(AbstractSystemCommand):
         task_folder: Path = Path(config.task.folder) / Path(task)
         task_inputs_folder: Path = task_folder / "input"
 
-        system_text: str = await read_text_file_async(task_inputs_folder / "system.txt")
-        user_text: str = await read_text_file_async(task_inputs_folder / "user.txt")
+        system_text: str = await read_text_file_async(task_inputs_folder / "system.md")
+        user_text: str = await read_text_file_async(task_inputs_folder / "user.md")
 
         async def context_file_block_for_files(file_paths: list[str]) -> str:
             context = []
@@ -41,17 +41,16 @@ class TaskCommand(AbstractSystemCommand):
 
         context_file_block = await context_file_block_for_files(glob.glob(glob_expression, recursive=True))
 
-        print("!" * 80)
-        print(glob_expression)
-        print(context_file_block)
-        print("!" * 80)
-
         structured_user_text: str = f"""
-        context files:
+# user prompt
 
-        {context_file_block}
+## files
 
-        {user_text}
+{context_file_block}
+
+## additional information
+
+{user_text}
 """
 
         response: CommunicationResponse = await communicate(
@@ -64,7 +63,7 @@ class TaskCommand(AbstractSystemCommand):
 
         task_outputs_folder: Path = task_folder / "output"
 
-        await write_text_file_async(task_outputs_folder / "content.txt", response.content)
+        await write_text_file_async(task_outputs_folder / "output.md", response.content)
 
         if response.thinking:
             await write_text_file_async(task_outputs_folder / "thinking.txt", response.thinking)

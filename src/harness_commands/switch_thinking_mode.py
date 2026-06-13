@@ -1,7 +1,7 @@
-from harness_commands.abstract import AbstractSystemCommand
+from harness_commands.abstract import AbstractHarnessCommand
 
 
-class SwitchThinkingModeCommand(AbstractSystemCommand):
+class SwitchThinkingModeCommand(AbstractHarnessCommand):
     @property
     def command(self) -> str:
         return "switch-thinking-mode"

@@ -5,6 +5,11 @@ from ollama import AsyncClient
 from model import ChatMessageRole, CommunicationResponse
 
 
+def new_async_ollama_client(host: str, port: int) -> AsyncClient:
+    url: str = f"http://{host}:{port}"
+    return AsyncClient(host=url)
+
+
 def new_message(role: str, text: str, think: bool) -> dict[str, Any]:
     return {"content": text, "role": role, "think": think}
 
