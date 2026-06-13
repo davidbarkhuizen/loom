@@ -1,8 +1,15 @@
+from pathlib import Path
+
 import aiofiles
 
 
-async def read_text_file_async(file_path):
+async def read_text_file_async(file_path: Path):
     content: str = ""
     async with aiofiles.open(file_path, mode="tr") as file:
         content = await file.read()
     return content
+
+
+async def write_text_file_async(file_path: Path, text: str):
+    async with aiofiles.open(file_path, mode="tw") as file:
+        await file.write(text)

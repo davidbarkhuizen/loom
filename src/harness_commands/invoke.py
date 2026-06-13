@@ -15,7 +15,7 @@ class InvokeCommand(AbstractSystemCommand):
         text = " ".join(args)
 
         _: list[str] = await communicate(
-            client=self.client(), model=config.model.model, role="user", text=text, think=config.model.think
+            client=self.client(), model=config.model.model, system="", user=[text], think=config.model.think
         )
 
         return [""]

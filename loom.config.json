@@ -7,9 +7,8 @@
     "model": "qwen2.5-coder:14b",
     "think": false
   },
-  "task": {
-    "folder": "task",
-    "specification_file_name": "specification.txt"
+  "tasks": {
+    "folder": "tasks"
   },
   "log": { "root_folder": "log" }
 }

@@ -1,1 +1,0 @@
-{"model": {"model": "qwen2.5-coder:14b", "think": false}, "ollama": {"host": "localhost", "port": 11434}, "task": {"folder_path": "task", "specification_file_name": "specification.txt"}, "log": {"root_folder": "log"}}

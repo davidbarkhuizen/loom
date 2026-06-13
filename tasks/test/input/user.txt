@@ -6,7 +6,6 @@
 - return the contents of single python code file that accomplishes the objectives
 - do not comment the python file
 
-
 ## objectives / goals
 
 Given an integer n, return a string array answer (1-indexed) where:

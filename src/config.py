@@ -15,9 +15,8 @@ class LogConfig:
 
 
 @dataclass
-class TaskConfig:
-    folder: str = field(default_factory=lambda: "task")
-    specification_file_name: str = field(default_factory=lambda: "specification.txt")
+class TasksConfig:
+    folder: str = field(default_factory=lambda: "tasks")
 
 
 @dataclass
@@ -36,7 +35,7 @@ class OllamaConfig:
 class LoomConfig:
     model: ModelConfig
     ollama: OllamaConfig = field(default_factory=lambda: OllamaConfig())
-    task: TaskConfig = field(default_factory=lambda: TaskConfig())
+    task: TasksConfig = field(default_factory=lambda: TasksConfig())
     log: LogConfig = field(default_factory=lambda: LogConfig())
 
 
