@@ -20,6 +20,6 @@ class PSCommand(AbstractHarnessCommand):
         for active_model in active_models:
             lines.append(pprint.pformat(active_model, indent=4, width=80))
 
-        # print(lines)
+        print(lines)
 
         return lines
