@@ -11,7 +11,8 @@ def new_async_ollama_client(host: str, port: int) -> AsyncClient:
 
 
 def new_message(role: str, text: str, think: bool) -> dict[str, Any]:
-    return {"content": text, "role": role, "think": think}
+    return {"content": text, "role": role}
+    # , "think": "low
 
 
 async def communicate(

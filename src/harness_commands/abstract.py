@@ -2,27 +2,21 @@ from abc import ABC, abstractmethod
 from typing import Any, Callable
 
 from ollama import AsyncClient
-from rich.markdown import Markdown
 
 from config import LoomConfig
 
 
 class AbstractHarnessCommand(ABC):
-    def __init__(
-        self, async_client: AsyncClient, get_config: Callable[[], LoomConfig], reconfigure: Callable[[str, Any], bool]
-    ):
+    def __init__(self, async_client: AsyncClient, config: LoomConfig, update_setting: Callable[[str, Any], bool]):
         self._async_client: AsyncClient = async_client
-        self._get_config: Callable[[], LoomConfig] = get_config
-        self._reconfigure: Callable[[str, Any], bool] = reconfigure
+        self._config: LoomConfig = config
+        self._update_setting: Callable[[str, Any], bool] = update_setting
 
     def client(self) -> AsyncClient:
         return self._async_client
 
-    def config(self) -> LoomConfig:
-        return self._get_config()
-
-    def reconfigure(self, setting: str, value: Any) -> bool:
-        return self._reconfigure(setting, value)
+    def update_setting(self, setting: str, value: Any) -> bool:
+        return self._update_setting(setting, value)
 
     @property
     @abstractmethod
@@ -30,5 +24,5 @@ class AbstractHarnessCommand(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    async def execute(self, args: list[str]) -> None:
+    async def execute(self, model: str, think: bool, args: list[str]) -> None:
         raise NotImplementedError()

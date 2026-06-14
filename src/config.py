@@ -20,20 +20,14 @@ class TasksConfig:
 
 
 @dataclass
-class ModelConfig:
-    model: str
-    think: bool
-
-
-@dataclass
 class OllamaConfig:
     host: str = field(default_factory=lambda: "localhost")
     port: int = field(default_factory=lambda: 11434)
+    default_model: str = field(default_factory=lambda: "qwen3.6:35b-a3b")
 
 
 @dataclass
 class LoomConfig:
-    model: ModelConfig
     ollama: OllamaConfig = field(default_factory=lambda: OllamaConfig())
     task: TasksConfig = field(default_factory=lambda: TasksConfig())
     log: LogConfig = field(default_factory=lambda: LogConfig())
@@ -64,7 +58,7 @@ def load_config_from_file(config_file_path: str) -> LoomConfig | None:
 
 
 def create_new_default_config(json_config_file_path: str) -> LoomConfig:
-    config = LoomConfig(model=ModelConfig(model="qwen2.5-coder:14b", think=False))
+    config = LoomConfig()
     write_config_to_json_file(config=config, json_file_path=json_config_file_path)
     print(f"new config created at {json_config_file_path}")
     return config

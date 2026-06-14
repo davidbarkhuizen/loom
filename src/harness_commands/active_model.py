@@ -9,5 +9,5 @@ class ActiveModelCommand(AbstractHarnessCommand):
     def command(self) -> str:
         return "active-model"
 
-    async def execute(self, args: list[str]) -> None:
-        display_markdown(Markdown(f"{self.config().model.model}"))
+    async def execute(self, model: str, think: bool, args: list[str]) -> None:
+        display_markdown(Markdown(f"{model}"))

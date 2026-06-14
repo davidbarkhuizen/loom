@@ -14,15 +14,13 @@ class TaskCommand(AbstractHarnessCommand):
     def command(self) -> str:
         return "task"
 
-    async def execute(self, args: list[str]) -> None:
+    async def execute(self, model: str, think: bool, args: list[str]) -> None:
         if len(args) == 0:
             display_text_as_markdown("error, no task specified. usage is: task [task-name], e.g. task test")
 
         task = args[0]
 
-        config: LoomConfig = self.config()
-
-        task_folder: Path = Path(config.task.folder) / Path(task)
+        task_folder: Path = Path(self._config.task.folder) / Path(task)
         task_inputs_folder: Path = task_folder / "input"
 
         system_text: str = await read_text_file_async(task_inputs_folder / "system.md")
@@ -56,10 +54,10 @@ class TaskCommand(AbstractHarnessCommand):
 
         response: CommunicationResponse = await communicate(
             client=self.client(),
-            model=config.model.model,
+            model=model,
             system=system_text,
             user=[structured_user_text],
-            think=config.model.think,
+            think=think,
         )
 
         task_outputs_folder: Path = task_folder / "output"

@@ -1,9 +1,10 @@
+import traceback
 from typing import Any
 
 from ollama import AsyncClient
 
 from chat import new_async_ollama_client
-from config import LoomConfig, ModelConfig
+from config import LoomConfig
 from harness_commands.abstract import AbstractHarnessCommand
 from harness_commands.active_model import ActiveModelCommand
 from harness_commands.invoke import InvokeCommand
@@ -24,19 +25,12 @@ HARNESS_COMMANDS = [
 ]
 
 
-async def weave(config: LoomConfig):
+async def weave(client: AsyncClient, config: LoomConfig):
 
-    host: str = config.ollama.host
-    port: int = config.ollama.port
-    client: AsyncClient = new_async_ollama_client(host, port)
+    _model: str = config.ollama.default_model
+    _think: bool = False
 
-    _model: str = config.model.model
-    _think: bool = config.model.think
-
-    def get_active_config() -> LoomConfig:
-        return LoomConfig(log=config.log, model=ModelConfig(model=_model, think=_think), ollama=config.ollama)
-
-    def reconfigure(setting: str, value: Any) -> bool:
+    def update_setting(setting: str, value: Any) -> bool:
         nonlocal _model
         nonlocal _think
 
@@ -51,7 +45,7 @@ async def weave(config: LoomConfig):
         return True
 
     def register_harness_commands(client: AsyncClient) -> list[AbstractHarnessCommand]:
-        return [X(client, get_active_config, reconfigure) for X in HARNESS_COMMANDS]
+        return [X(client, config, update_setting) for X in HARNESS_COMMANDS]
 
     registered_harness_commands = register_harness_commands(client)
 
@@ -61,7 +55,7 @@ async def weave(config: LoomConfig):
             return [f"unknown system command: {command}"]
 
         system_command = next(iter(matching_command))
-        await system_command.execute(args)
+        await system_command.execute(_model, _think, args)
 
     while (invocation := input(f"\n{_model} > ").strip().lower()) not in ["exit", "quit"]:
         if len(invocation) == 0:
@@ -74,3 +68,17 @@ async def weave(config: LoomConfig):
                 await execute_harness_command(command, args)
             case _:
                 continue
+
+
+async def loom(config: LoomConfig):
+
+    host: str = config.ollama.host
+    port: int = config.ollama.port
+
+    client = new_async_ollama_client(host, port)
+    try:
+        await weave(client, config)
+    except:
+        traceback.print_exc()
+    finally:
+        await client.close()
