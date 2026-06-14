@@ -24,13 +24,6 @@ async def communicate(
 
     messages: list[dict[str, Any]] = [system_message, *user_messages]
 
-    for message in messages:
-        print("=-" * 40)
-        print(message["role"])
-        print(message["content"])
-
-    print("=-" * 40)
-
     response_text: str = ""
     thinking_text: str = ""
 
@@ -39,6 +32,14 @@ async def communicate(
     with open("log.log", "a") as file:
         async for part in stream:
             file.write(str(part) + "\n")
+
+            responding_model: str | None = part.model
+            if responding_model and responding_model != model:
+                raise ValueError(
+                    f"response model mismatch. requested a response from {model}, but actually received one from {responding_model}"
+                )
+
+            # TODO validate that responing model matche requested model
 
             message = part.get("message", None)
             if message is None:

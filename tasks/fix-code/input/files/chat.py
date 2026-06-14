@@ -5,8 +5,14 @@ from ollama import AsyncClient
 from model import ChatMessageRole, CommunicationResponse
 
 
+def new_async_ollama_client(host: str, port: int) -> AsyncClient:
+    url: str = f"http://{host}:{port}"
+    return AsyncClient(host=url)
+
+
 def new_message(role: str, text: str, think: bool) -> dict[str, Any]:
-    return {"content": text, "role": role, "think": think}
+    return {"content": text, "role": role}
+    # , "think": "low
 
 
 async def communicate(
@@ -18,41 +24,49 @@ async def communicate(
 
     messages: list[dict[str, Any]] = [system_message, *user_messages]
 
-    for message in messages:
-        print("=-" * 40)
-        print(message["role"])
-        print(message["content"])
-
-    print("=-" * 40)
-
     response_text: str = ""
     thinking_text: str = ""
 
     stream = await client.chat(model=model, messages=messages, stream=True)
-    async for part in stream:
-        with open("log.log", "a") as file:
+
+    with open("log.log", "a") as file:
+        async for part in stream:
             file.write(str(part) + "\n")
 
-        thinking: str | None = part["message"].thinking
-        if thinking:
-            if not thinking_text:
-                print("Thinking")
-                print("=-" * 40)
+            responding_model: str | None = part.model
+            if responding_model and responding_model != model:
+                raise ValueError(
+                    f"response model mismatch. requested a response from {model}, but actually received one from {responding_model}"
+                )
 
-            thinking_text += thinking
-            print(thinking, end="", flush=True)
+            # TODO validate that responing model matche requested model
 
-        content: str = part["message"]["content"]
-        if content:
-            if not response_text:
-                print("Content")
-                print("=-" * 40)
+            message = part.get("message", None)
+            if message is None:
+                continue
 
-            response_text += content
-            print(content, end="", flush=True)
+            thinking: str | None = message.thinking
+            if thinking:
+                if not thinking_text:
+                    print("\nThinking")
+                    print("=-" * 40)
 
-        #     done: bool = part["done"]
-        #     done_reason: str | None = part.done_reason
+                thinking_text += thinking
+                print(thinking, end="", flush=True)
+
+            content: str = message.get("content", None)
+            if content:
+                if not response_text:
+                    print("\nContent")
+                    print("=-" * 40)
+
+                response_text += content
+                print(content, end="", flush=True)
+
+            done: bool = bool(part.get("done", "False"))
+            if done:
+                pass
+            # done_reason: str | None = part.done_reason
 
     print()
 

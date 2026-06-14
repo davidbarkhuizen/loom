@@ -33,7 +33,7 @@ your task is to analyse the supplied code-base, then identify, describe, and fix
   * identify a potential fix or fixes for the problem
   * in the case of multiple different possible fixes, pick the simplest one, and discard the others
   * describe the fix in natural language
-  * produce the code fix itself
+  * return the fixed code file or files
 
 ## response format
 
@@ -54,5 +54,6 @@ your task is to analyse the supplied code-base, then identify, describe, and fix
 
 - considering only the code-base supplied by the user in the user prompt
 - be concise, short explanations only, unless otherwise instructed
-- focus only on the supplied code
-- the code you generate should not contain comments
+- restrict yourself only to the code base supplied by the user
+- the final code you return should not contain comments
+- where a fix produces a change in a code file, return the entire fixed code file, and not the changed section
