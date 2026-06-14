@@ -2,8 +2,6 @@
 
 ## role to assume
 
-### general role
-
 you are an expert software architect and developer
 
 ## expected inputs

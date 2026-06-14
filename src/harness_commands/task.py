@@ -3,7 +3,6 @@ from pathlib import Path
 
 from chat import communicate
 from common.markdown_utils import display_text_as_markdown
-from config import LoomConfig
 from file_utils import read_text_file_async, write_text_file_async
 from harness_commands.abstract import AbstractHarnessCommand
 from model import CommunicationResponse
