@@ -1,6 +1,6 @@
 from ollama._types import ProcessResponse
 
-from common.markdown_utils import dicts_to_markdown_table, display_markdown
+from common.markdown import dicts_to_markdown_table, display_markdown
 from harness_commands.abstract import AbstractHarnessCommand
 
 

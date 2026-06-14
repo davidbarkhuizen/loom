@@ -1,8 +1,9 @@
 import glob
+import os
 from pathlib import Path
 
 from chat import communicate
-from common.markdown_utils import display_text_as_markdown
+from common.markdown import display_text_as_markdown, extract_embedded_files_from_markdown
 from file_utils import read_text_file_async, write_text_file_async
 from harness_commands.abstract import AbstractHarnessCommand
 from model import CommunicationResponse
@@ -61,9 +62,19 @@ class TaskCommand(AbstractHarnessCommand):
 
         task_outputs_folder: Path = task_folder / "output"
 
-        await write_text_file_async(task_outputs_folder / "output.md", response.content)
-
         if response.thinking:
             await write_text_file_async(task_outputs_folder / "thinking.md", response.thinking)
+
+        output_markdown_doc: str = response.content
+
+        await write_text_file_async(task_outputs_folder / "output.md", output_markdown_doc)
+
+        embedded_files: list[tuple[str, str]] = extract_embedded_files_from_markdown(output_markdown_doc)
+
+        embedded_files_output_path: Path = task_outputs_folder / "files"
+        os.makedirs(embedded_files_output_path, exist_ok=True)
+
+        for file_contents, relative_file_path in embedded_files:
+            await write_text_file_async(embedded_files_output_path / relative_file_path, file_contents)
 
         # TODO stats

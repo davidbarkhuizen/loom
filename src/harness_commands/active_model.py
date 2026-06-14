@@ -1,6 +1,6 @@
 from rich.markdown import Markdown
 
-from common.markdown_utils import display_markdown
+from common.markdown import display_markdown
 from harness_commands.abstract import AbstractHarnessCommand
 
 

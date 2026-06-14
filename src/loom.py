@@ -4,7 +4,7 @@ from typing import Any
 from ollama import AsyncClient
 
 from chat import new_async_ollama_client
-from common.markdown_utils import display_text_as_markdown
+from common.markdown import display_text_as_markdown
 from config import LoomConfig
 from harness_commands.abstract import AbstractHarnessCommand
 from harness_commands.active_model import ActiveModelCommand
