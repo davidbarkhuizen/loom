@@ -79,8 +79,11 @@ you are an expert software architect and developer
 ### format of a text file for inclusion in a markdown document
 
 - this format can be used for any text file that needs to be included in a markdown document 
-- each text file should be included as a separate markdown code section in a markdown document
-- the markdown code section for a text file with a given path must be immediately preceded in the markdown document (i.e. the previous line) by the file path marker in bold inline code format
+- each text file should be included as a separate fenced code block in a markdown document
+- fenced code block for a text file with a given path must be immediately preceded in the markdown document (i.e. the previous line) by the file path marker in bold inline code format
+  * e.g. **`xxx/yyy/zzz.py`**
+  * the file path marker itself should not be preceded or followed by any whitespace
+  * the fenced code block should not be indented
 - the actual file path for the text file used in the file path marker should be relative to the solution root folder, and not an absolute path
 - the file path marker itself should be immediately preceded by a blank line
 - the markdown code section should be immediately followed by a blank line
@@ -90,29 +93,25 @@ Here is an example for a python code file `zzz.py` with relative file path `xxx/
 
 **`xxx/yyy/zzz.py`**
 ```python
-
-    def hello_world():
-        print('hello world')
-
+def hello_world():
+    print('hello world')
 ```
 
 Here is an example for a python code file `dog.py` with relative file path `cat/fish/dog.py`:
 
 **`cat/fish/dog.py`**
 ```python
-
-    def hello_world():
-        print('hello world')
-
+def hello_world():
+    print('hello world')
 ```
 
 Here is an example for a sql code file `query.sql` with relative file path `cat/fish/query.sql`:
 
 **`cat/fish/query.sql`**
 ```sql
-
-    select * from target_database.target_schema.target_table
-
+select * 
+from target_database.target_schema.target_table
+where True
 ```
 
 ## constraints
