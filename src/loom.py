@@ -74,13 +74,11 @@ async def weave(client: AsyncClient, config: LoomConfig):
 
 async def loom(config: LoomConfig):
 
-    host: str = config.ollama.host
-    port: int = config.ollama.port
-
-    client = new_async_ollama_client(host, port)
+    client = new_async_ollama_client(config.ollama.host, config.ollama.port)
     try:
         await weave(client, config)
     except:
         traceback.print_exc()
+        raise
     finally:
         await client.close()
