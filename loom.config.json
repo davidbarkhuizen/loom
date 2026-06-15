@@ -4,8 +4,10 @@
     "port": 11434,
     "default_model": "qwen3.6:35b-a3b_think-code"
   },
-  "tasks": {
-    "folder": "tasks"
+  "folders": {
+    "system": "system",
+    "user": "example/specifications",
+    "generated": "example/generated"
   },
   "log": { "root_folder": "log" }
 }

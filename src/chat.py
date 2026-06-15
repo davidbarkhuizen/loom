@@ -29,6 +29,10 @@ async def communicate(
 
     stream = await client.chat(model=model, messages=messages, stream=True)
 
+    print(system_message)
+    for msg in user_messages:
+        print(msg)
+
     with open("log.log", "a") as file:
         async for part in stream:
             file.write(str(part) + "\n")

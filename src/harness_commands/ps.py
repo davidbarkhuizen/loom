@@ -11,7 +11,7 @@ class PSCommand(AbstractHarnessCommand):
 
     async def execute(self, model: str, think: bool, args: list[str]) -> None:
 
-        response: ProcessResponse = await self.client()._request(ProcessResponse, "GET", "/api/ps")
+        response: ProcessResponse = await self.client._request(ProcessResponse, "GET", "/api/ps")
 
         FIELDS_TO_EXCLUDE = [
             "modified_at",

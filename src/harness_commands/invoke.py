@@ -13,5 +13,5 @@ class InvokeCommand(AbstractHarnessCommand):
         text = " ".join(args)
 
         _: CommunicationResponse = await communicate(
-            client=self.client(), model=model, system="", user=[text], think=think
+            client=self.client, model=model, system="", user=[text], think=think
         )

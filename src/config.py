@@ -15,8 +15,10 @@ class LogConfig:
 
 
 @dataclass
-class TasksConfig:
-    folder: str = field(default_factory=lambda: "tasks")
+class FoldersConfig:
+    system: str = field(default_factory=lambda: "templates")
+    user: str = field(default_factory=lambda: "example/specifications")
+    generated: str = field(default_factory=lambda: "example/generated")
 
 
 @dataclass
@@ -29,7 +31,7 @@ class OllamaConfig:
 @dataclass
 class LoomConfig:
     ollama: OllamaConfig = field(default_factory=lambda: OllamaConfig())
-    task: TasksConfig = field(default_factory=lambda: TasksConfig())
+    folders: FoldersConfig = field(default_factory=lambda: FoldersConfig())
     log: LogConfig = field(default_factory=lambda: LogConfig())
 
 

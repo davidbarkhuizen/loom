@@ -7,6 +7,10 @@ class SwitchThinkingModeCommand(AbstractHarnessCommand):
     def command(self) -> str:
         return "think"
 
+    @property
+    def usage(self) -> str:
+        return f"{self.command} [true | false]"
+
     async def execute(self, model: str, think: bool, args: list[str]) -> None:
         new_think: bool = bool(args[0])
         updated: bool = self.update_setting("think", new_think)

@@ -58,7 +58,11 @@ async def weave(client: AsyncClient, config: LoomConfig):
         system_command = next(iter(matching_command))
         await system_command.execute(_model, _think, args)
 
-    while (invocation := input(f"\n{_model} > ").strip().lower()) not in ["exit", "quit"]:
+    # DEBUG
+    while True:
+        # while (invocation := input(f"\n{_model} > ").strip().lower()) not in ["exit", "quit"]:
+        # DEBUG
+        invocation = "task code/write boom-bap"
         if len(invocation) == 0:
             continue
 
@@ -67,6 +71,7 @@ async def weave(client: AsyncClient, config: LoomConfig):
                 continue
             case [command, *args]:
                 await execute_harness_command(command, args)
+                break
             case _:
                 continue
 
