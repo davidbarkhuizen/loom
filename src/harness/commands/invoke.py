@@ -1,4 +1,4 @@
-from harness.harness_commands.abstract import AbstractHarnessCommand
+from harness.commands.abstract import AbstractHarnessCommand
 from harness.tether import communicate
 from model.model import CommunicationResponse
 

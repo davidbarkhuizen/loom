@@ -4,7 +4,7 @@ from pathlib import Path
 
 from common.file_utils import read_text_file_async, write_text_file_async
 from common.markdown import display_text_as_markdown, extract_embedded_files_from_markdown
-from harness.harness_commands.abstract import AbstractHarnessCommand
+from harness.commands.abstract import AbstractHarnessCommand
 from harness.tether import communicate
 from model.model import CommunicationResponse
 

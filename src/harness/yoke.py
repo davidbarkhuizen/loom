@@ -5,14 +5,14 @@ from ollama import AsyncClient
 
 from common.markdown import display_text_as_markdown
 from config import YokeConfig
-from harness.harness_commands.abstract import AbstractHarnessCommand
-from harness.harness_commands.active_model import ActiveModelCommand
-from harness.harness_commands.invoke import InvokeCommand
-from harness.harness_commands.list_models import ListModelsCommand
-from harness.harness_commands.ps import PSCommand
-from harness.harness_commands.switch_model import SwitchModelCommand
-from harness.harness_commands.switch_thinking_mode import SwitchThinkingModeCommand
-from harness.harness_commands.task import TaskCommand
+from harness.commands.abstract import AbstractHarnessCommand
+from harness.commands.active_model import ActiveModelCommand
+from harness.commands.invoke import InvokeCommand
+from harness.commands.list_models import ListModelsCommand
+from harness.commands.ps import PSCommand
+from harness.commands.switch_model import SwitchModelCommand
+from harness.commands.switch_thinking_mode import SwitchThinkingModeCommand
+from harness.commands.task import TaskCommand
 from harness.tether import new_async_ollama_client
 
 HARNESS_COMMANDS = [
@@ -55,8 +55,8 @@ async def yoke(client: AsyncClient, config: YokeConfig):
         if len(matching_command) == 0:
             display_text_as_markdown(f"unknown system command: {command}")
 
-        system_command = next(iter(matching_command))
-        await system_command.execute(_model, _think, args)
+        harness_command = next(iter(matching_command))
+        await harness_command.execute(_model, _think, args)
 
     while (invocation := input(f"\n{_model} > ").strip().lower()) not in ["exit", "quit"]:
         if len(invocation) == 0:
@@ -67,9 +67,6 @@ async def yoke(client: AsyncClient, config: YokeConfig):
                 continue
             case [command, *args]:
                 await execute_harness_command(command, args)
-                break
-            case _:
-                continue
 
 
 async def enyoke(config: YokeConfig):

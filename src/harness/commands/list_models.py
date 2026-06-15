@@ -1,7 +1,7 @@
 from ollama._types import ListResponse
 
 from common.markdown import dicts_to_markdown_table, display_markdown
-from harness.harness_commands.abstract import AbstractHarnessCommand
+from harness.commands.abstract import AbstractHarnessCommand
 
 
 class ListModelsCommand(AbstractHarnessCommand):
