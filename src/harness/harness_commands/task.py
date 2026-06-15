@@ -2,11 +2,11 @@ import glob
 import os
 from pathlib import Path
 
-from chat import communicate
+from common.file_utils import read_text_file_async, write_text_file_async
 from common.markdown import display_text_as_markdown, extract_embedded_files_from_markdown
-from file_utils import read_text_file_async, write_text_file_async
-from harness_commands.abstract import AbstractHarnessCommand
-from model import CommunicationResponse
+from harness.harness_commands.abstract import AbstractHarnessCommand
+from harness.tether import communicate
+from model.model import CommunicationResponse
 
 
 async def context_file_block_from_files(file_paths: list[str]) -> str:
@@ -62,6 +62,7 @@ class TaskCommand(AbstractHarnessCommand):
         user_text: str = await read_text_file_async(user_inputs_folder / "specification.md")
         user_files_block = await context_file_block_from_files(glob.glob(glob_expression, recursive=True))
 
+        display_text_as_markdown(f"{model}: {task} {specification}")
         rsp: CommunicationResponse = await communicate(
             client=self.client,
             model=model,

@@ -1,7 +1,7 @@
 from ollama._types import ProcessResponse
 
 from common.markdown import dicts_to_markdown_table, display_markdown
-from harness_commands.abstract import AbstractHarnessCommand
+from harness.harness_commands.abstract import AbstractHarnessCommand
 
 
 class PSCommand(AbstractHarnessCommand):

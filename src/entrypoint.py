@@ -1,8 +1,8 @@
 import asyncio
 
-import loom
-from config import LoomConfig, configure_from_json_file
+from config import YokeConfig, configure_from_json_file
+from harness.yoke import enyoke
 
 if __name__ == "__main__":
-    config: LoomConfig = configure_from_json_file()
-    asyncio.run(loom.loom(config))
+    config: YokeConfig = configure_from_json_file()
+    asyncio.run(enyoke(config))

@@ -1,7 +1,7 @@
 from rich.markdown import Markdown
 
 from common.markdown import display_markdown
-from harness_commands.abstract import AbstractHarnessCommand
+from harness.harness_commands.abstract import AbstractHarnessCommand
 
 
 class ActiveModelCommand(AbstractHarnessCommand):

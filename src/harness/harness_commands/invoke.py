@@ -1,6 +1,6 @@
-from chat import communicate
-from harness_commands.abstract import AbstractHarnessCommand
-from model import CommunicationResponse
+from harness.harness_commands.abstract import AbstractHarnessCommand
+from harness.tether import communicate
+from model.model import CommunicationResponse
 
 
 class InvokeCommand(AbstractHarnessCommand):

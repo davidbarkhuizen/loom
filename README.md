@@ -1,6 +1,6 @@
 david barkhuizen, 2026
 
-# loom
+# yoke
 
 llm harness
 
@@ -19,3 +19,11 @@ llm harness
     PARAMETER presence_penalty 0.0
     PARAMETER repeat_penalty 1.0
 ```
+
+## notes
+
+- functional requirements
+- objectives
+- input/output expectations
+- constraints
+- domain context

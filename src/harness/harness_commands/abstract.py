@@ -3,13 +3,13 @@ from typing import Any, Callable, Sequence
 
 from ollama import AsyncClient
 
-from config import LoomConfig
+from config import YokeConfig
 
 
 class AbstractHarnessCommand(ABC):
-    def __init__(self, async_client: AsyncClient, config: LoomConfig, update_setting: Callable[[str, Any], bool]):
+    def __init__(self, async_client: AsyncClient, config: YokeConfig, update_setting: Callable[[str, Any], bool]):
         self.client: AsyncClient = async_client
-        self.config: LoomConfig = config
+        self.config: YokeConfig = config
         self.update_setting: Callable[[str, Any], bool] = update_setting
 
     @property

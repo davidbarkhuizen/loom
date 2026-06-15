@@ -6,7 +6,7 @@ from typing import Any
 from dacite import from_dict
 from dacite.config import Config
 
-CONFIG_FILE_PATH = "./loom.config.json"
+CONFIG_FILE_PATH = "./yoke.config.json"
 
 
 @dataclass
@@ -16,7 +16,7 @@ class LogConfig:
 
 @dataclass
 class FoldersConfig:
-    system: str = field(default_factory=lambda: "templates")
+    system: str = field(default_factory=lambda: "system")
     user: str = field(default_factory=lambda: "example/specifications")
     generated: str = field(default_factory=lambda: "example/generated")
 
@@ -29,28 +29,28 @@ class OllamaConfig:
 
 
 @dataclass
-class LoomConfig:
+class YokeConfig:
     ollama: OllamaConfig = field(default_factory=lambda: OllamaConfig())
     folders: FoldersConfig = field(default_factory=lambda: FoldersConfig())
     log: LogConfig = field(default_factory=lambda: LogConfig())
 
 
-def load_config_from_json_file(json_file_path: str) -> LoomConfig:
+def load_config_from_json_file(json_file_path: str) -> YokeConfig:
 
     data: dict[str, Any]
     with open(json_file_path) as f:
         data = json.load(f)
 
-    config: LoomConfig = from_dict(data_class=LoomConfig, data=data, config=Config(cast=[Enum]))
+    config: YokeConfig = from_dict(data_class=YokeConfig, data=data, config=Config(cast=[Enum]))
     return config
 
 
-def write_config_to_json_file(config: LoomConfig, json_file_path: str) -> None:
+def write_config_to_json_file(config: YokeConfig, json_file_path: str) -> None:
     with open(json_file_path, "w") as json_file:
         json.dump(asdict(config), json_file)
 
 
-def load_config_from_file(config_file_path: str) -> LoomConfig | None:
+def load_config_from_file(config_file_path: str) -> YokeConfig | None:
 
     try:
         return load_config_from_json_file(config_file_path)
@@ -59,14 +59,14 @@ def load_config_from_file(config_file_path: str) -> LoomConfig | None:
         return None
 
 
-def create_new_default_config(json_config_file_path: str) -> LoomConfig:
-    config = LoomConfig()
+def create_new_default_config(json_config_file_path: str) -> YokeConfig:
+    config = YokeConfig()
     write_config_to_json_file(config=config, json_file_path=json_config_file_path)
     print(f"new config created at {json_config_file_path}")
     return config
 
 
-def configure_from_json_file(json_config_file_path: str = CONFIG_FILE_PATH) -> LoomConfig:
+def configure_from_json_file(json_config_file_path: str = CONFIG_FILE_PATH) -> YokeConfig:
 
     if (config := load_config_from_file(json_config_file_path)) is not None:
         return config

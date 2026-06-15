@@ -3,17 +3,17 @@ from typing import Any
 
 from ollama import AsyncClient
 
-from chat import new_async_ollama_client
 from common.markdown import display_text_as_markdown
-from config import LoomConfig
-from harness_commands.abstract import AbstractHarnessCommand
-from harness_commands.active_model import ActiveModelCommand
-from harness_commands.invoke import InvokeCommand
-from harness_commands.list_models import ListModelsCommand
-from harness_commands.ps import PSCommand
-from harness_commands.switch_model import SwitchModelCommand
-from harness_commands.switch_thinking_mode import SwitchThinkingModeCommand
-from harness_commands.task import TaskCommand
+from config import YokeConfig
+from harness.harness_commands.abstract import AbstractHarnessCommand
+from harness.harness_commands.active_model import ActiveModelCommand
+from harness.harness_commands.invoke import InvokeCommand
+from harness.harness_commands.list_models import ListModelsCommand
+from harness.harness_commands.ps import PSCommand
+from harness.harness_commands.switch_model import SwitchModelCommand
+from harness.harness_commands.switch_thinking_mode import SwitchThinkingModeCommand
+from harness.harness_commands.task import TaskCommand
+from harness.tether import new_async_ollama_client
 
 HARNESS_COMMANDS = [
     ListModelsCommand,
@@ -26,7 +26,7 @@ HARNESS_COMMANDS = [
 ]
 
 
-async def weave(client: AsyncClient, config: LoomConfig):
+async def yoke(client: AsyncClient, config: YokeConfig):
 
     _model: str = config.ollama.default_model
     _think: bool = False
@@ -72,11 +72,11 @@ async def weave(client: AsyncClient, config: LoomConfig):
                 continue
 
 
-async def loom(config: LoomConfig):
+async def enyoke(config: YokeConfig):
 
     client = new_async_ollama_client(config.ollama.host, config.ollama.port)
     try:
-        await weave(client, config)
+        await yoke(client, config)
     except:
         traceback.print_exc()
         raise

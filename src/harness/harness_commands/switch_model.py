@@ -1,5 +1,5 @@
 from common.markdown import display_text_as_markdown
-from harness_commands.abstract import AbstractHarnessCommand
+from harness.harness_commands.abstract import AbstractHarnessCommand
 
 
 class SwitchModelCommand(AbstractHarnessCommand):
