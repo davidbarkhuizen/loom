@@ -9,16 +9,14 @@ def new_async_ollama_client(host: str, port: int) -> AsyncClient:
     return AsyncClient(host=f"http://{host}:{port}")
 
 
-def new_message(role: str, text: str, think: bool) -> dict[str, Any]:
+def new_message(role: str, text: str) -> dict[str, Any]:
     return {"content": text, "role": role}
 
 
-async def communicate(
-    client: AsyncClient, model: str, system: str, user: list[str], think: bool
-) -> CommunicationResponse:
+async def communicate(client: AsyncClient, model: str, system: str, user: list[str]) -> CommunicationResponse:
 
-    system_message = new_message(ChatMessageRole.system.value, system, think)
-    user_messages = [new_message(ChatMessageRole.user.value, text, think) for text in user]
+    system_message = new_message(ChatMessageRole.system.value, system)
+    user_messages = [new_message(ChatMessageRole.user.value, text) for text in user]
 
     messages: list[dict[str, Any]] = [system_message, *user_messages]
 

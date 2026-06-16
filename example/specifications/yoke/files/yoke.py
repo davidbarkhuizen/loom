@@ -53,9 +53,8 @@ async def harness_llm(client: AsyncClient, config: YokeConfig):
         return True
 
     def register_harness_commands(client: AsyncClient) -> None:
-        registered_harness_commands.extend(
-            [X(config, update_setting, client, console, registered_harness_commands) for X in HARNESS_COMMANDS]
-        )
+        commands = [X(config, update_setting, client, console, registered_harness_commands) for X in HARNESS_COMMANDS]
+        registered_harness_commands.extend(commands)
 
     register_harness_commands(client)
 
@@ -65,7 +64,12 @@ async def harness_llm(client: AsyncClient, config: YokeConfig):
             display_text_as_markdown(console, f"unknown harness command: {command}")
             return
 
-        harness_command = next(iter(matching_command))
+        # Ensure we only get one matching command
+        if len(matching_command) > 1:
+            display_text_as_markdown(console, f"multiple commands found with name '{command}' - this is an error")
+            return
+
+        harness_command = matching_command[0]
         await harness_command.execute(_model, _think, args)
 
     await execute_harness_command("help", [])
@@ -74,7 +78,8 @@ async def harness_llm(client: AsyncClient, config: YokeConfig):
         if len(invocation) == 0:
             continue
 
-        match invocation.split(" "):
+        parts = invocation.split(" ")
+        match parts:
             case []:
                 continue
             case [command, *args]:

@@ -10,7 +10,7 @@ class PSCommand(AbstractHarnessCommand):
     def command(self) -> str:
         return "ps"
 
-    async def execute(self, model: str, think: bool, args: list[str]) -> bool:
+    async def execute(self, model: str, args: list[str]) -> bool:
 
         response: ProcessResponse = await self.client._request(ProcessResponse, "GET", "/api/ps")
 

@@ -8,7 +8,7 @@ class ListCommandsCommand(AbstractHarnessCommand):
     def command(self) -> str:
         return "list-commands"
 
-    async def execute(self, model: str, think: bool, args: list[str]) -> bool:
+    async def execute(self, model: str, args: list[str]) -> bool:
 
         model_dicts = [{"command": command.command, "usage": command.usage} for command in self.commands]
         model_dicts = sorted(model_dicts, key=lambda d: d["command"])

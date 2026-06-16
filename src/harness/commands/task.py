@@ -66,7 +66,7 @@ class TaskCommand(AbstractHarnessCommand):
     def usage(self) -> str:
         return f"{self.command} [task-name] [user-specification]"
 
-    async def execute(self, model: str, think: bool, args: list[str]) -> bool:
+    async def execute(self, model: str, args: list[str]) -> bool:
 
         if len(args) == 0:
             display_text_as_markdown(self.console, "error, no task specified. usage is: {self.usage}")
@@ -117,7 +117,7 @@ class TaskCommand(AbstractHarnessCommand):
         except FileNotFoundError:
             display_text_as_markdown(
                 self.console,
-                f"error, user specification file for task **{task}** does not exist @ **{user_spec_text_file_path}**",
+                f"error: **user specification {user_specification_name} does not exist for task {task}**",
             )
             return False
 
@@ -128,7 +128,6 @@ class TaskCommand(AbstractHarnessCommand):
             model=model,
             system=task_specification_text,
             user=[structured_user_text(user_files_block=user_files_block, user_text=user_specification_text)],
-            think=think,
         )
 
         thinking = rsp.thinking

@@ -12,12 +12,10 @@ class InvokeCommand(AbstractHarnessCommand):
     def usage(self) -> str:
         return "! [natural language instruction or query]"
 
-    async def execute(self, model: str, think: bool, args: list[str]) -> bool:
+    async def execute(self, model: str, args: list[str]) -> bool:
 
         text = " ".join(args)
 
-        _: CommunicationResponse = await communicate(
-            client=self.client, model=model, system="", user=[text], think=think
-        )
+        _: CommunicationResponse = await communicate(client=self.client, model=model, system="", user=[text])
 
         return True

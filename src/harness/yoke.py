@@ -1,5 +1,5 @@
 import traceback
-from typing import Any, Sequence
+from typing import Sequence
 
 from ollama import AsyncClient
 from rich.console import Console
@@ -12,16 +12,12 @@ from harness.commands.list_commands import ListCommandsCommand
 from harness.commands.list_models import ListModelsCommand
 from harness.commands.list_tasks import ListTasksCommand
 from harness.commands.ps import PSCommand
-from harness.commands.switch_model import SwitchModelCommand
-from harness.commands.switch_thinking_mode import SwitchThinkingModeCommand
 from harness.commands.task import TaskCommand
 from harness.tether import new_async_ollama_client
 from markdown.display import display_text_as_markdown, new_markdown_console
 
 HARNESS_COMMANDS: Sequence[type[AbstractHarnessCommand]] = [
     ListModelsCommand,
-    SwitchModelCommand,
-    SwitchThinkingModeCommand,
     InvokeCommand,
     TaskCommand,
     PSCommand,
@@ -34,27 +30,14 @@ HARNESS_COMMANDS: Sequence[type[AbstractHarnessCommand]] = [
 async def harness_llm(client: AsyncClient, config: YokeConfig):
     console: Console = new_markdown_console()
 
-    _model: str = config.ollama.default_model
-    _think: bool = False
     registered_harness_commands: Sequence[AbstractHarnessCommand] = list()
-
-    def update_setting(setting: str, value: Any) -> bool:
-        nonlocal _model
-        nonlocal _think
-
-        match setting:
-            case "model":
-                _model = str(value)
-            case "think":
-                _think = value
-            case _:
-                return False
-
-        return True
 
     def register_harness_commands(client: AsyncClient) -> None:
         registered_harness_commands.extend(
-            [X(config, update_setting, client, console, registered_harness_commands) for X in HARNESS_COMMANDS]
+            [
+                T_HarnessCommand(config, client, console, registered_harness_commands)
+                for T_HarnessCommand in HARNESS_COMMANDS
+            ]
         )
 
     register_harness_commands(client)
@@ -62,15 +45,15 @@ async def harness_llm(client: AsyncClient, config: YokeConfig):
     async def execute_harness_command(command: str, args: list[str]):
         matching_command = [cmd for cmd in registered_harness_commands if cmd.command == command]
         if len(matching_command) == 0:
-            display_text_as_markdown(console, f"unknown harness command: {command}")
+            display_text_as_markdown(console, f"error:  **unknown harness command: {command}**")
             return
 
         harness_command = next(iter(matching_command))
-        await harness_command.execute(_model, _think, args)
+        await harness_command.execute(config.ollama.default_model, args)
 
     await execute_harness_command("help", [])
 
-    while (invocation := input(f"\n{_model} > ").strip().lower()) not in ["exit", "quit"]:
+    while (invocation := input(f"\n{config.ollama.default_model} > ").strip().lower()) not in ["exit", "quit"]:
         if len(invocation) == 0:
             continue
 

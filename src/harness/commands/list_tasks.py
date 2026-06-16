@@ -9,7 +9,7 @@ class ListTasksCommand(AbstractHarnessCommand):
     def command(self) -> str:
         return "list-tasks"
 
-    async def execute(self, model: str, think: bool, args: list[str]) -> bool:
+    async def execute(self, model: str, args: list[str]) -> bool:
 
         root_task_specs_folder_path: Path = Path(self.config.folders.system) / "task"
 
