@@ -11,33 +11,13 @@ from markdown.render import dict_list_to_markdown_table, markdown_file_block_for
 from model.model import CommunicationResponse, TextFile
 
 
-async def context_file_block_from_file_paths(file_paths: list[str]) -> str:
-
-    processed_file_count: int = 0
-    embedded_file_count: int = 0
-    binary_file_count: int = 0
+async def context_file_block_for_text_files(text_files: list[TextFile]) -> str:
 
     context = []
-    for path in file_paths:
-        try:
-            processed_file_count = processed_file_count + 1
-            if await file_is_binary(path):
-                binary_file_count = binary_file_count + 1
-                continue
-            file_contents = await read_text_file_async(Path(path))
-
-            encoded_file = markdown_file_block_for_text_file(TextFile(path, file_contents))
-
-            context.extend(encoded_file.split("\n"))
-            embedded_file_count = embedded_file_count + 1
-            print(f"file {path} embedded into context file block")
-        except:
-            print(f"error reading file @ {path}")
-            raise
-
-    print(
-        f"processed {processed_file_count} files, embedded {embedded_file_count}, ignored {binary_file_count} binary files"
-    )
+    for text_file in text_files:
+        encoded_file = markdown_file_block_for_text_file(TextFile(text_file.path, text_file.contents))
+        context.extend(encoded_file.split("\n"))
+        print(f"file {text_file.path} embedded into context file block")
 
     return "\n".join(context)
 
@@ -88,8 +68,6 @@ class TaskCommand(AbstractHarnessCommand):
         user_specification_name = args[1]
 
         user_specification_inputs_folder: Path = Path(self.config.folders.user) / user_specification_name
-        user_specification_input_files_folder: Path = user_specification_inputs_folder / "files"
-        glob_expression = f"{user_specification_input_files_folder.absolute()}/**/*.*"
 
         display_text_as_markdown(
             self.console,
@@ -121,7 +99,17 @@ class TaskCommand(AbstractHarnessCommand):
             )
             return False
 
-        user_files_block = await context_file_block_from_file_paths(glob.glob(glob_expression, recursive=True))
+        user_spec_files_folder: Path = user_specification_inputs_folder / "files"
+        user_spec_files_glob_expression = f"{user_spec_files_folder}/**/*.*"
+        user_specification_files: list[TextFile] = [
+            TextFile(
+                path=user_spec_file_path.replace(str(user_spec_files_folder) + "/", ""),
+                contents=await read_text_file_async(Path(user_spec_file_path)),
+            )
+            for user_spec_file_path in glob.glob(user_spec_files_glob_expression, recursive=True)
+        ]
+
+        user_files_block = await context_file_block_for_text_files(user_specification_files)
 
         rsp: CommunicationResponse = await communicate(
             client=self.client,

@@ -16,36 +16,31 @@ from harness.commands.task import TaskCommand
 from harness.tether import new_async_ollama_client
 from markdown.display import display_text_as_markdown, new_markdown_console
 
-HARNESS_COMMANDS: Sequence[type[AbstractHarnessCommand]] = [
-    ListModelsCommand,
-    InvokeCommand,
-    TaskCommand,
-    PSCommand,
-    ListCommandsCommand,
-    HelpCommand,
-    ListTasksCommand,
-]
-
 
 async def harness_llm(client: AsyncClient, config: YokeConfig):
     console: Console = new_markdown_console()
 
-    registered_harness_commands: Sequence[AbstractHarnessCommand] = list()
-
-    def register_harness_commands(client: AsyncClient) -> None:
-        registered_harness_commands.extend(
-            [
-                T_HarnessCommand(config, client, console, registered_harness_commands)
-                for T_HarnessCommand in HARNESS_COMMANDS
+    harness_commands: Sequence[AbstractHarnessCommand] = list()
+    harness_commands.extend(
+        [
+            T_HarnessCommand(config, client, console, harness_commands)
+            for T_HarnessCommand in [
+                ListModelsCommand,
+                InvokeCommand,
+                TaskCommand,
+                PSCommand,
+                ListCommandsCommand,
+                HelpCommand,
+                ListTasksCommand,
             ]
-        )
-
-    register_harness_commands(client)
+        ]
+    )
 
     async def execute_harness_command(command_name: str, args: list[str]) -> bool:
-        matching_commands = [cmd for cmd in registered_harness_commands if cmd.command == command_name]
+        matching_commands = [cmd for cmd in harness_commands if cmd.command == command_name]
         if len(matching_commands) == 0:
             display_text_as_markdown(console, f"error:  **unknown harness command: {command_name}**")
+
             return False
 
         if len(matching_commands) > 1:

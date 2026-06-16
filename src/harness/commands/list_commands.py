@@ -13,6 +13,6 @@ class ListCommandsCommand(AbstractHarnessCommand):
         model_dicts = [{"command": command.command, "usage": command.usage} for command in self.commands]
         model_dicts = sorted(model_dicts, key=lambda d: d["command"])
 
-        display_text_as_markdown(self.console, dict_list_to_markdown_table(model_dicts))
+        display_text_as_markdown(self.console, dict_list_to_markdown_table(model_dicts, alignment="left"))
 
         return True
