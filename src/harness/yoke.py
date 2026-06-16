@@ -62,7 +62,14 @@ async def harness_llm(client: AsyncClient, config: YokeConfig):
         if len(invocation) == 0:
             continue
 
-        match invocation.split(" "):
+        splut: list[str] = list()
+        try:
+            splut = invocation.split(" ")
+        except Exception as e:
+            display_text_as_markdown(console, f"error: exception parsing harness command {invocation}: {e}")
+            continue
+
+        match splut:
             case []:
                 continue
             case [command, *args]:

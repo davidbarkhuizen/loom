@@ -17,9 +17,8 @@ your task is to find bugs in the code base and report back on them with potentia
 
 1. analyse with the purpose of identifying bugs
 2. summarise and detail your findings from phase 1
-3. for each finding from phase 1, determine a good fix for the bug 
-5. produce a single unified code base change set of all files affeted by fixes from phase 3
-6. return a report
+3. for each bug found, determine a good fix for that bug 
+4. formulate the report to return
 
 ## report format
 
@@ -34,14 +33,14 @@ your task is to find bugs in the code base and report back on them with potentia
       - all files, whether they were found to contain bugs or not
       - just the file path, not the file content
     * summary of bugs
-      - summary list of the title of each finding in the detail section that follows
+      - summary list of the title of each bug in the detail section that follows
     * detail of bugs
-      - for each finding, a sub-section with the following structure
+      - for each bug, a sub-section with the following structure
         * a title that summarises the finding
         * the problematic section or sections of code, in respective markdown fenced code blocks
         * a detailed natural language description of the finding
         * a natural language summary of the proposed fix
-        * the fixed sectoion or sections of code, in respective markdown fenced code blocks
+        * the code fix itself, in a markdown fenced code block or blocks
 
 ## constraints
 
