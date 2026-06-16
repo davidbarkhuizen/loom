@@ -57,11 +57,12 @@ case "$option" in
         arp_scan "$@"
     ;;
 
-    yoke)
-        yoke "$@"
+    help)
+        usage
     ;;
 
     *)
-        usage
+        yoke "$@"
     ;;
+
 esac
