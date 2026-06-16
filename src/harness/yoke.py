@@ -1,5 +1,5 @@
 import traceback
-from typing import Any
+from typing import Any, Sequence
 
 from ollama import AsyncClient
 from rich.console import Console
@@ -8,6 +8,7 @@ from config import YokeConfig
 from harness.commands.abstract import AbstractHarnessCommand
 from harness.commands.active_model import ActiveModelCommand
 from harness.commands.invoke import InvokeCommand
+from harness.commands.list_commands import ListCommandsCommand
 from harness.commands.list_models import ListModelsCommand
 from harness.commands.ps import PSCommand
 from harness.commands.switch_model import SwitchModelCommand
@@ -16,7 +17,7 @@ from harness.commands.task import TaskCommand
 from harness.tether import new_async_ollama_client
 from markdown.display import display_text_as_markdown, new_markdown_console
 
-HARNESS_COMMANDS = [
+HARNESS_COMMANDS: Sequence[type[AbstractHarnessCommand]] = [
     ListModelsCommand,
     SwitchModelCommand,
     ActiveModelCommand,
@@ -24,6 +25,7 @@ HARNESS_COMMANDS = [
     InvokeCommand,
     TaskCommand,
     PSCommand,
+    ListCommandsCommand,
 ]
 
 
@@ -32,6 +34,7 @@ async def yoke(client: AsyncClient, config: YokeConfig):
     console: Console = new_markdown_console()
     _model: str = config.ollama.default_model
     _think: bool = False
+    registered_harness_commands: Sequence[AbstractHarnessCommand] = list()
 
     def update_setting(setting: str, value: Any) -> bool:
         nonlocal _model
@@ -47,15 +50,17 @@ async def yoke(client: AsyncClient, config: YokeConfig):
 
         return True
 
-    def register_harness_commands(client: AsyncClient) -> list[AbstractHarnessCommand]:
-        return [X(config, update_setting, client, console) for X in HARNESS_COMMANDS]
+    def register_harness_commands(client: AsyncClient) -> None:
+        registered_harness_commands.extend(
+            [X(config, update_setting, client, console, registered_harness_commands) for X in HARNESS_COMMANDS]
+        )
 
-    registered_harness_commands = register_harness_commands(client)
+    register_harness_commands(client)
 
     async def execute_harness_command(command: str, args: list[str]):
         matching_command = [cmd for cmd in registered_harness_commands if cmd.command == command]
         if len(matching_command) == 0:
-            display_text_as_markdown(console, f"unknown system command: {command}")
+            display_text_as_markdown(console, f"unknown harness command: {command}")
             return
 
         harness_command = next(iter(matching_command))

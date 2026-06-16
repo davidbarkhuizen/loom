@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Any, Callable
+from typing import Any, Callable, Sequence
 
 from ollama import AsyncClient
 from rich.console import Console
@@ -14,11 +16,13 @@ class AbstractHarnessCommand(ABC):
         update_setting: Callable[[str, Any], bool],
         async_client: AsyncClient,
         console: Console,
+        commands: Sequence[AbstractHarnessCommand],
     ):
         self.config: YokeConfig = config
         self.update_setting: Callable[[str, Any], bool] = update_setting
         self.client: AsyncClient = async_client
         self.console: Console = console
+        self.commands: Sequence[AbstractHarnessCommand] = commands
 
     @property
     @abstractmethod
