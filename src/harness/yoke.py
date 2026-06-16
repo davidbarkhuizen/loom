@@ -6,7 +6,6 @@ from rich.console import Console
 
 from config import YokeConfig
 from harness.commands.abstract import AbstractHarnessCommand
-from harness.commands.active_model import ActiveModelCommand
 from harness.commands.invoke import InvokeCommand
 from harness.commands.list_commands import ListCommandsCommand
 from harness.commands.list_models import ListModelsCommand
@@ -20,7 +19,6 @@ from markdown.display import display_text_as_markdown, new_markdown_console
 HARNESS_COMMANDS: Sequence[type[AbstractHarnessCommand]] = [
     ListModelsCommand,
     SwitchModelCommand,
-    ActiveModelCommand,
     SwitchThinkingModeCommand,
     InvokeCommand,
     TaskCommand,
