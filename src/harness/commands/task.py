@@ -7,7 +7,7 @@ from harness.commands.abstract import AbstractHarnessCommand
 from harness.tether import communicate
 from markdown.display import display_text_as_markdown
 from markdown.parse import extract_embedded_text_files_from_markdown
-from markdown.render import markdown_file_block_for_text_file
+from markdown.render import dict_list_to_markdown_table, markdown_file_block_for_text_file
 from model.model import CommunicationResponse, TextFile
 
 
@@ -114,7 +114,15 @@ class TaskCommand(AbstractHarnessCommand):
 
         user_files_block = await context_file_block_from_file_paths(glob.glob(glob_expression, recursive=True))
 
-        display_text_as_markdown(self.console, f"{model}: {task} {specification}")
+        display_text_as_markdown(
+            self.console,
+            dict_list_to_markdown_table(
+                [{"task": task, "model": model, "specification": specification}],
+                alignment="left",
+                column_order=["task", "model", "specification"],
+            ),
+        )
+
         rsp: CommunicationResponse = await communicate(
             client=self.client,
             model=model,
@@ -139,7 +147,7 @@ class TaskCommand(AbstractHarnessCommand):
         for text_file in response_text_files:
             await write_text_file_async(rsp_embedded_files_output_path / text_file.path, text_file.contents)
 
-        print(f"response contains {len(response_text_files)} embedded text files:")
+        print(f"extracted {len(response_text_files)} embedded text files:")
         for text_file in response_text_files:
             print(f"- {text_file.path}")
 
