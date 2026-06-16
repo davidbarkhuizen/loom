@@ -11,9 +11,12 @@ class SwitchModelCommand(AbstractHarnessCommand):
     def usage(self) -> str:
         return f"{self.command} [model]"
 
-    async def execute(self, model: str, think: bool, args: list[str]) -> None:
+    async def execute(self, model: str, think: bool, args: list[str]) -> bool:
         new_model: str = args[0]
-        reconfigured: bool = self.update_setting("model", new_model)
 
-        if not reconfigured:
-            display_text_as_markdown(self.console, "failed to switch model")
+        updated: bool = self.update_setting("model", new_model)
+        if not updated:
+            display_text_as_markdown(self.console, "error: **failed to switch model**")
+            return False
+
+        return True
