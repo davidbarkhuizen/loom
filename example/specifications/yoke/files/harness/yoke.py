@@ -1,6 +1,9 @@
 import traceback
 from typing import Sequence
 
+from ollama import AsyncClient
+from rich.console import Console
+
 from config import YokeConfig
 from harness.commands.abstract import AbstractHarnessCommand
 from harness.commands.help import HelpCommand
@@ -12,8 +15,6 @@ from harness.commands.ps import PSCommand
 from harness.commands.task import TaskCommand
 from harness.tether import new_async_ollama_client
 from markdown.display import display_text_as_markdown, new_markdown_console
-from ollama import AsyncClient
-from rich.console import Console
 
 
 async def harness_llm(client: AsyncClient, config: YokeConfig):
@@ -36,20 +37,14 @@ async def harness_llm(client: AsyncClient, config: YokeConfig):
     )
 
     async def execute_harness_command(command_name: str, args: list[str]) -> bool:
-        matching_commands = [
-            cmd for cmd in harness_commands if cmd.command == command_name
-        ]
+        matching_commands = [cmd for cmd in harness_commands if cmd.command == command_name]
         if len(matching_commands) == 0:
-            display_text_as_markdown(
-                console, f"error:  **unknown harness command: {command_name}**"
-            )
+            display_text_as_markdown(console, f"error:  **unknown harness command: {command_name}**")
 
             return False
 
         if len(matching_commands) > 1:
-            raise ValueError(
-                f"invalid harness command configuration, multiple commands found matching {command_name}"
-            )
+            raise ValueError(f"invalid harness command configuration, multiple commands found matching {command_name}")
 
         harness_command = matching_commands[0]
 
@@ -63,9 +58,7 @@ async def harness_llm(client: AsyncClient, config: YokeConfig):
 
     await execute_harness_command("help", [])
 
-    while (
-        invocation := input(f"\n{config.ollama.default_model} > ").strip().lower()
-    ) not in ["exit", "quit"]:
+    while (invocation := input(f"\n{config.ollama.default_model} > ").strip().lower()) not in ["exit", "quit"]:
         if len(invocation) == 0:
             continue
 
@@ -73,10 +66,8 @@ async def harness_llm(client: AsyncClient, config: YokeConfig):
         try:
             splut = invocation.split(" ")
         except Exception as e:
-            display_text_as_markdown(
-                console, f"error: exception parsing harness command {invocation}: {e}"
-            )
-            return False
+            display_text_as_markdown(console, f"error: exception parsing harness command {invocation}: {e}")
+            continue
 
         match splut:
             case []:
