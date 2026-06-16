@@ -4,11 +4,17 @@ convert list of python dictionaries to markdown table string
 
 ### inputs
 
-- takes a `list[dict[str, str]]` as an argument
+- list of dictionaries to convert
+  * `list[dict[str, str]]`
+- alignment
+  * str
+  * allowed values: 'left', 'center', 'right'
+  * default: 'center'
 
 #### input validation
 
 - in the case of being sent an empty list, then return an empty string
+- if any of the dictionaries in the list are null, then raise a ValueError
 - check that all the dictionaries in the list have the same keys
   * otherwise raise a ValueError() exception
 - raise a ValueError exception if a dictionary item key of None is encountered
@@ -16,6 +22,19 @@ convert list of python dictionaries to markdown table string
 ### outputs
 
 return a single multiline string that corresponds to a table in markdown format
+
+### processing
+
+#### handling dictionary values
+
+when retrieving a key value from a dictionary for conversion to a table row cell
+
+- if the value, is None
+  * convert to empty string
+- if the value is a string
+  * return the value
+- all other cases
+  * convert value to string using str function
 
 ### markdown table format specification
 

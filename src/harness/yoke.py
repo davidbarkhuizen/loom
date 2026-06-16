@@ -56,6 +56,7 @@ async def yoke(client: AsyncClient, config: YokeConfig):
         matching_command = [cmd for cmd in registered_harness_commands if cmd.command == command]
         if len(matching_command) == 0:
             display_text_as_markdown(console, f"unknown system command: {command}")
+            return
 
         harness_command = next(iter(matching_command))
         await harness_command.execute(_model, _think, args)
