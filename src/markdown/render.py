@@ -1,33 +1,87 @@
-from dataclasses import dataclass
-from enum import Enum
-
-from rich.markdown import Markdown
-
 from markdown.model import DEFAULT_LANGUAGE_MARKER, FileExtensionsForLanguageMarker, LanguageMarker
 from model.model import TextFile
 
 
-def dicts_to_markdown_table(list_of_dicts: list[dict[str, str]]) -> Markdown:
-    if not list_of_dicts:
-        return Markdown("")
+def dict_list_to_markdown_table(dict_list, alignment="center", column_order: list[str] | None = None) -> str:
+    """
+    Convert a list of dictionaries to a markdown table string.
 
-    # Extract headers from the first dictionary's keys
-    headers = list_of_dicts[0].keys()
+    Args:
+        dict_list (list[dict[str, str]]): List of dictionaries to convert
+        alignment (str): Text alignment for table columns ('left', 'center', 'right')
 
-    # Create the header row
-    header_row = "| " + " | ".join(headers) + " |"
-    separator_row = "|-" + "-|-".join([""] * len(headers)) + "-|"
+    Returns:
+        str: Markdown table as a string
 
-    # Create rows for each dictionary
-    rows = []
-    for d in list_of_dicts:
-        row = "| " + " | ".join([str(d[key]) for key in headers]) + " |"
-        rows.append(row)
+    Raises:
+        ValueError: If input validation fails
+    """
+    # Handle empty list case
+    if not dict_list:
+        return ""
 
-    # Combine all parts into the final table string
-    table = header_row + "\n" + separator_row + "\n" + "\n".join(rows)
+    # Validate each dictionary in the list
+    for i, d in enumerate(dict_list):
+        if d is None:
+            raise ValueError(f"Dictionary at index {i} is None")
+        if not isinstance(d, dict):
+            raise ValueError(f"Item at index {i} is not a dictionary")
+        if None in d:
+            raise ValueError(f"Dictionary at index {i} contains None as key")
 
-    return Markdown(table)
+    # Get all unique keys from all dictionaries
+    all_keys = set()
+    for d in dict_list:
+        all_keys.update(d.keys())
+
+    # Check that all dictionaries have the same keys
+    for i, d in enumerate(dict_list):
+        if set(d.keys()) != all_keys:
+            raise ValueError(f"Dictionary at index {i} has different keys than others")
+
+    # Sort keys for consistent column ordering
+    sorted_keys = sorted(all_keys)
+
+    if column_order is not None and len(column_order) > 0:
+        for column in column_order:
+            if column not in sorted_keys:
+                raise ValueError(f"column_order contains an invalid column name: {column}")
+
+    key_order = column_order + [k for k in sorted_keys if k not in column_order] if column_order else sorted_keys
+
+    # Build header row
+    header_row = "| " + " | ".join(key_order) + " |"
+
+    # Build separator row with alignment
+    separator_parts = []
+    for key in key_order:
+        if alignment == "left":
+            separator_parts.append(":---")
+        elif alignment == "center":
+            separator_parts.append(":---:")
+        elif alignment == "right":
+            separator_parts.append("---:")
+        else:
+            raise ValueError("Alignment must be 'left', 'center', or 'right'")
+    separator_row = "| " + " | ".join(separator_parts) + " |"
+
+    # Build data rows
+    data_rows = []
+    for d in dict_list:
+        row_parts = []
+        for key in key_order:
+            value = d.get(key)
+            if value is None:
+                row_parts.append("")
+            elif isinstance(value, str):
+                row_parts.append(value)
+            else:
+                row_parts.append(str(value))
+        data_rows.append("| " + " | ".join(row_parts) + " |")
+
+    # Combine all parts
+    table_lines = [header_row, separator_row] + data_rows
+    return "\n".join(table_lines)
 
 
 def language_marker_from_file_extension(file_path: str) -> LanguageMarker:

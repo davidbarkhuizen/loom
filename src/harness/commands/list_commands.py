@@ -1,6 +1,6 @@
 from harness.commands.abstract import AbstractHarnessCommand
 from markdown.display import display_markdown
-from markdown.render import dicts_to_markdown_table
+from markdown.render import dict_list_to_markdown_table
 
 
 class ListCommandsCommand(AbstractHarnessCommand):
@@ -12,4 +12,4 @@ class ListCommandsCommand(AbstractHarnessCommand):
 
         model_dicts = [{"command": command.command, "usage": command.usage} for command in self.commands]
         model_dicts = sorted(model_dicts, key=lambda d: d["command"])
-        display_markdown(self.console, dicts_to_markdown_table(model_dicts))
+        display_markdown(self.console, dict_list_to_markdown_table(model_dicts))
