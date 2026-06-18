@@ -17,8 +17,32 @@ from harness.tether import new_async_ollama_client
 from markdown.display import display_text_as_markdown, new_markdown_console
 
 
+async def execute_harness_command(
+    console, model: str, commands: Sequence[AbstractHarnessCommand], command_name: str, args: list[str]
+) -> bool:
+    matching_commands = [cmd for cmd in commands if cmd.command == command_name]
+    if len(matching_commands) == 0:
+        display_text_as_markdown(console, f"error:  **unknown harness command: {command_name}**")
+
+        return False
+
+    if len(matching_commands) > 1:
+        raise ValueError(f"invalid harness command configuration, multiple commands found matching {command_name}")
+
+    harness_command = matching_commands[0]
+
+    try:
+        return await harness_command.execute(model, args)
+    except Exception as e:
+        stack_trace: str = "\n".join(traceback.format_exception(e))
+        error_message: str = f"error: unhandled exception during harness command execution - {e} - {stack_trace}"
+        display_text_as_markdown(console, error_message)
+        return False
+
+
 async def harness_llm(client: AsyncClient, config: YokeConfig):
     console: Console = new_markdown_console()
+    model = config.ollama.default_model
 
     harness_commands: Sequence[AbstractHarnessCommand] = list()
     harness_commands.extend(
@@ -36,29 +60,9 @@ async def harness_llm(client: AsyncClient, config: YokeConfig):
         ]
     )
 
-    async def execute_harness_command(command_name: str, args: list[str]) -> bool:
-        matching_commands = [cmd for cmd in harness_commands if cmd.command == command_name]
-        if len(matching_commands) == 0:
-            display_text_as_markdown(console, f"error:  **unknown harness command: {command_name}**")
+    await execute_harness_command(console, model, harness_commands, "help", [])
 
-            return False
-
-        if len(matching_commands) > 1:
-            raise ValueError(f"invalid harness command configuration, multiple commands found matching {command_name}")
-
-        harness_command = matching_commands[0]
-
-        try:
-            return await harness_command.execute(config.ollama.default_model, args)
-        except Exception as e:
-            stack_trace: str = "\n".join(traceback.format_exception(e))
-            error_message: str = f"error: unhandled exception during harness command execution - {e} - {stack_trace}"
-            display_text_as_markdown(console, error_message)
-            return False
-
-    await execute_harness_command("help", [])
-
-    while (invocation := input(f"\n{config.ollama.default_model} > ").strip().lower()) not in ["exit", "quit"]:
+    while (invocation := input(f"\n{model} > ").strip().lower()) not in ["exit", "quit"]:
         if len(invocation) == 0:
             continue
 
@@ -72,8 +76,8 @@ async def harness_llm(client: AsyncClient, config: YokeConfig):
         match splut:
             case []:
                 continue
-            case [command, *args]:
-                await execute_harness_command(command, args)
+            case [command_name, *command_args]:
+                await execute_harness_command(console, model, harness_commands, command_name, command_args)
 
 
 async def yoke(config: YokeConfig):

@@ -2,6 +2,7 @@ import glob
 from pathlib import Path
 
 from harness.commands.abstract import AbstractHarnessCommand
+from markdown.display import display_text_as_markdown
 
 
 class ListTasksCommand(AbstractHarnessCommand):
@@ -19,6 +20,6 @@ class ListTasksCommand(AbstractHarnessCommand):
         ]
 
         for task_name in task_names:
-            print(task_name)
+            display_text_as_markdown(self.console, f"- {task_name}")
 
         return True

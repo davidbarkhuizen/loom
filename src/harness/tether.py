@@ -1,8 +1,9 @@
+from threading import Lock
 from typing import Any
 
-from ollama import AsyncClient
+from ollama import AsyncClient, ChatResponse
 
-from model.model import ChatMessageRole, CommunicationResponse
+from model.model import ChatMessageRole, CommunicationResponse, CommunicationStats
 
 
 def new_async_ollama_client(host: str, port: int) -> AsyncClient:
@@ -13,35 +14,39 @@ def new_message(role: str, text: str) -> dict[str, Any]:
     return {"content": text, "role": role}
 
 
+_global_log_thread_lock: Lock = Lock()
+
+
 async def communicate(client: AsyncClient, model: str, system: str, user: list[str]) -> CommunicationResponse:
+    global _global_log_thread_lock
 
     system_message = new_message(ChatMessageRole.system.value, system)
+
     user_messages = [new_message(ChatMessageRole.user.value, text) for text in user]
 
     messages: list[dict[str, Any]] = [system_message, *user_messages]
 
     response_text: str = ""
     thinking_text: str = ""
+    stats: CommunicationStats | None = None
 
-    stream = await client.chat(model=model, messages=messages, stream=True)
+    chat_responses: list[ChatResponse] = list()
 
-    with open("log.log", "a") as file:
-        async for part in stream:
-            file.write(str(part) + "\n")
+    try:
+        async for chat_response in await client.chat(model=model, messages=messages, stream=True):
+            chat_responses.append(chat_response)
 
-            responding_model: str | None = part.model
+            responding_model: str | None = chat_response.model
             if responding_model and responding_model != model:
                 raise ValueError(
                     f"response model mismatch. requested a response from {model}, but actually received one from {responding_model}"
                 )
 
-            # TODO validate that responing model matche requested model
-
-            message = part.get("message", None)
+            message = chat_response.get("message", None)
             if message is None:
                 continue
 
-            thinking: str | None = message.thinking
+            thinking: str | None = message.get("thinking", None)
             if thinking:
                 if not thinking_text:
                     print("\nThinking")
@@ -51,7 +56,7 @@ async def communicate(client: AsyncClient, model: str, system: str, user: list[s
                 print(thinking, end="", flush=True)
 
             content: str = message.get("content", None)
-            if content:
+            if content is not None:
                 if not response_text:
                     print("\nContent")
                     print("=-" * 40)
@@ -59,17 +64,23 @@ async def communicate(client: AsyncClient, model: str, system: str, user: list[s
                 response_text += content
                 print(content, end="", flush=True)
 
-            done: bool = bool(part.get("done", "False"))
+            done: bool = bool(chat_response.get("done", "False"))
             if done:
-                # done_reason: str | None = part.done_reason
+                stats = CommunicationStats(
+                    done_reason=chat_response["done_reason"],
+                    total_duration_s=chat_response["total_duration"] / 1e9,
+                    load_duration_ms=chat_response["load_duration"] / 1e6,
+                    prompt_eval_count=chat_response["prompt_eval_count"],
+                    prompt_eval_duration_s=chat_response["prompt_eval_duration"] / 1e9,
+                    eval_count=chat_response["eval_count"],
+                    eval_duration_s=chat_response["eval_duration"] / 1e9,
+                )
 
-                # total_duration: int = part["total_duration"]
-                # load_duration: int = part["load_duration"]
-                # prompt_eval_count: int = part["prompt_eval_count"]
-                # eval_count: int = part["eval_count"]
-                # eval_duration: int = part["eval_duration"]
-                pass
+    finally:
+        with _global_log_thread_lock:
+            with open("log.log", "a") as file:
+                file.write("\n".join([str(rsp) for rsp in chat_responses]))
 
     print()
 
-    return CommunicationResponse(content=response_text, thinking=thinking_text)
+    return CommunicationResponse(content=response_text, thinking=thinking_text, stats=stats)

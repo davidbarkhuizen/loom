@@ -107,6 +107,7 @@ class TaskCommand(AbstractHarnessCommand):
                 contents=await read_text_file_async(Path(user_spec_file_path)),
             )
             for user_spec_file_path in glob.glob(user_spec_files_glob_expression, recursive=True)
+            if not await file_is_binary(user_spec_file_path)
         ]
 
         user_files_block = await context_file_block_for_text_files(user_specification_files)
@@ -117,6 +118,16 @@ class TaskCommand(AbstractHarnessCommand):
             system=task_specification_text,
             user=[structured_user_text(user_files_block=user_files_block, user_text=user_specification_text)],
         )
+
+        if rsp.stats:
+            tokens_in_per_second = rsp.stats.prompt_eval_count / rsp.stats.prompt_eval_duration_s
+            print(
+                f"{rsp.stats.prompt_eval_count} prompt tokens evaluated in {rsp.stats.prompt_eval_duration_s:.2f} seconds => {tokens_in_per_second:.1f} tokens per second"
+            )
+            tokens_out_per_second = rsp.stats.eval_count / rsp.stats.eval_duration_s
+            print(
+                f"{rsp.stats.eval_count} tokens generated in {rsp.stats.eval_duration_s:.2f} seconds => {tokens_out_per_second:.1f} tokens per second"
+            )
 
         thinking = rsp.thinking
         output_markdown_doc: str = rsp.content
