@@ -1,5 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
+from model.model import TextFile
+
+from markdown.parse import extract_embedded_text_files_from_markdown
 
 
 class ChatMessageRole(Enum):
@@ -25,6 +28,9 @@ class CommunicationResponse:
     content: str
     thinking: str
     stats: CommunicationStats | None
+
+    def embedded_text_files(self) -> list[TextFile]
+        return extract_embedded_text_files_from_markdown(self.content)
 
 
 @dataclass

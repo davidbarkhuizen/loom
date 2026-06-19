@@ -120,7 +120,7 @@ async def harness_llm(client: AsyncClient, config: YokeConfig):
 
     list_commands_command: AbstractHarnessCommand | None = match_harness_command("list-commands")
     if list_commands_command is None:
-        raise ValueError("cannot locate help command")
+        raise ValueError("cannot locate list-commands command")
 
     await execute_harness_command(_console, _model, list_commands_command, [])
 

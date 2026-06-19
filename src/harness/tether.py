@@ -14,7 +14,6 @@ def new_message(role: str, text: str) -> dict[str, Any]:
 
 
 async def communicate(client: AsyncClient, model: str, system: str, user: list[str]) -> CommunicationResponse:
-    global _global_log_thread_lock
 
     system_prompt_length: int = len(system)
     user_prompt_length: int = sum([len(text) for text in user])
@@ -75,5 +74,14 @@ async def communicate(client: AsyncClient, model: str, system: str, user: list[s
             file.write("\n".join([str(rsp) for rsp in chat_responses]))
 
     print()
+    if stats:
+        tokens_in_per_second = stats.prompt_eval_count / stats.prompt_eval_duration_s
+        print(
+            f"{stats.prompt_eval_count} prompt tokens evaluated in {stats.prompt_eval_duration_s:.2f} seconds => {tokens_in_per_second:.1f} tokens per second"
+        )
+        tokens_out_per_second = stats.eval_count / stats.eval_duration_s
+        print(
+            f"{stats.eval_count} tokens generated in {stats.eval_duration_s:.2f} seconds => {tokens_out_per_second:.1f} tokens per second"
+        )
 
     return CommunicationResponse(content=response_text, thinking=thinking_text, stats=stats)
