@@ -50,7 +50,7 @@ class TaskCommand(AbstractHarnessCommand):
     async def execute(self, model: str, args: list[str]) -> bool:
 
         if len(args) == 0:
-            display_text_as_markdown(self.console, "error, no task specified. usage is: {self.usage}")
+            display_text_as_markdown(self.console, f"error, no task specified. usage is: {self.usage}")
             return False
 
         task = args[0]

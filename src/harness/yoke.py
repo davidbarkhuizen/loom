@@ -3,6 +3,7 @@ from typing import Sequence
 
 from ollama import AsyncClient
 from rich.console import Console
+from typing_extensions import Callable
 
 from config import YokeConfig
 from harness.commands.abstract import AbstractHarnessCommand
@@ -16,6 +17,9 @@ from harness.commands.switch_model import SwitchModelCommand
 from harness.commands.task import TaskCommand
 from harness.tether import new_async_ollama_client
 from markdown.display import display_text_as_markdown, new_markdown_console
+
+# from prompt_toolkit import PromptSession
+# from prompt_toolkit.patch_stdout import patch_stdout
 
 
 async def execute_harness_command(console, model: str, command: AbstractHarnessCommand, args: list[str]) -> bool:
@@ -31,9 +35,37 @@ async def execute_harness_command(console, model: str, command: AbstractHarnessC
     return succeeded
 
 
+async def runloop(
+    console, get_model: Callable[[], str], match_harness_command: Callable[[str], AbstractHarnessCommand]
+):
+    while (invocation := input(f"\n{get_model()} > ").strip().lower()) not in ["exit", "quit"]:
+        if len(invocation) == 0:
+            continue
+
+        splut: list[str] = list()
+        try:
+            splut = invocation.split(" ")
+        except Exception as e:
+            display_text_as_markdown(console, f"error: exception parsing harness command {invocation}: {e}")
+            continue
+
+        match splut:
+            case []:
+                continue
+            case [command_name, *command_args]:
+                command: AbstractHarnessCommand | None = match_harness_command(command_name)
+                if command is None:
+                    continue
+                await execute_harness_command(console, model, command, command_args)
+
+
 async def harness_llm(client: AsyncClient, config: YokeConfig):
     _console: Console = new_markdown_console()
     _model = config.ollama.default_model
+
+    def get_model(model: str) -> str:
+        nonlocal _model
+        return _model
 
     def switch_model(model: str) -> bool:
         nonlocal _model
@@ -92,25 +124,7 @@ async def harness_llm(client: AsyncClient, config: YokeConfig):
 
     await execute_harness_command(_console, _model, list_commands_command, [])
 
-    while (invocation := input(f"\n{_model} > ").strip().lower()) not in ["exit", "quit"]:
-        if len(invocation) == 0:
-            continue
-
-        splut: list[str] = list()
-        try:
-            splut = invocation.split(" ")
-        except Exception as e:
-            display_text_as_markdown(_console, f"error: exception parsing harness command {invocation}: {e}")
-            continue
-
-        match splut:
-            case []:
-                continue
-            case [command_name, *command_args]:
-                command: AbstractHarnessCommand | None = match_harness_command(command_name)
-                if command is None:
-                    continue
-                await execute_harness_command(_console, _model, command, command_args)
+    await runloop(_console, get_model, match_harness_command)
 
 
 async def yoke(config: YokeConfig):
