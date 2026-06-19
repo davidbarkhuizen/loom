@@ -19,9 +19,7 @@ async def communicate(client: AsyncClient, model: str, system: str, user: list[s
     system_prompt_length: int = len(system)
     user_prompt_length: int = sum([len(text) for text in user])
     total_prompt_length: int = system_prompt_length + user_prompt_length
-    print(
-        f"context length (chars): system {system_prompt_length}, user {user_prompt_length}, total {total_prompt_length}"
-    )
+    print(f"context length (chars): {total_prompt_length} = system {system_prompt_length} + user {user_prompt_length}")
 
     system_message = new_message(ChatMessageRole.system.value, system)
     user_messages = [new_message(ChatMessageRole.user.value, text) for text in user]
