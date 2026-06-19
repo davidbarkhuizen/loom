@@ -36,7 +36,7 @@ async def execute_harness_command(console, model: str, command: AbstractHarnessC
 
 
 async def runloop(
-    console, get_model: Callable[[], str], match_harness_command: Callable[[str], AbstractHarnessCommand]
+    console, get_model: Callable[[], str], match_harness_command: Callable[[str], AbstractHarnessCommand | None]
 ):
     while (invocation := input(f"\n{get_model()} > ").strip().lower()) not in ["exit", "quit"]:
         if len(invocation) == 0:
@@ -56,14 +56,14 @@ async def runloop(
                 command: AbstractHarnessCommand | None = match_harness_command(command_name)
                 if command is None:
                     continue
-                await execute_harness_command(console, model, command, command_args)
+                await execute_harness_command(console, get_model(), command, command_args)
 
 
 async def harness_llm(client: AsyncClient, config: YokeConfig):
     _console: Console = new_markdown_console()
     _model = config.ollama.default_model
 
-    def get_model(model: str) -> str:
+    def get_model() -> str:
         nonlocal _model
         return _model
 

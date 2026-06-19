@@ -1,6 +1,7 @@
 import glob
 import json
 import os
+import uuid
 from pathlib import Path
 
 from common.file_utils import file_is_binary, read_text_file_async, write_text_file_async
@@ -133,7 +134,7 @@ class TaskCommand(AbstractHarnessCommand):
         thinking = rsp.thinking
         output_markdown_doc: str = rsp.content
 
-        task_outputs_folder: Path = user_specification_folder / "generated"
+        task_outputs_folder: Path = user_specification_folder / "generated" / str(uuid.uuid4())
         rsp_embedded_files_output_path: Path = task_outputs_folder / "files"
 
         if thinking:
