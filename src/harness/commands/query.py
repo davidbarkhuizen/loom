@@ -1,6 +1,6 @@
 from harness.commands.abstract import AbstractHarnessCommand
-from harness.tether import communicate
-from model.model import CommunicationResponse
+from harness.tether import prompt
+from model.model import RawPromptRequest, RawPromptResponse
 
 
 class QueryCommand(AbstractHarnessCommand):
@@ -16,6 +16,6 @@ class QueryCommand(AbstractHarnessCommand):
 
         text = " ".join(args)
 
-        _: CommunicationResponse = await communicate(client=self.client, model=model, system="", user=[text])
+        _: RawPromptResponse = await prompt(self.client, model, RawPromptRequest(system_prompt="", user_prompt=[text]))
 
         return True

@@ -1,36 +1,11 @@
 from dataclasses import dataclass
 from enum import Enum
-from model.model import TextFile
-
-from markdown.parse import extract_embedded_text_files_from_markdown
 
 
 class ChatMessageRole(Enum):
     user = "user"
     system = "system"
     assistant = "assistant"
-
-
-@dataclass
-class CommunicationStats:
-    model: str
-    done_reason: str | None
-    total_duration_s: float
-    load_duration_ms: float
-    prompt_eval_count: int
-    prompt_eval_duration_s: float
-    eval_count: int
-    eval_duration_s: float
-
-
-@dataclass
-class CommunicationResponse:
-    content: str
-    thinking: str
-    stats: CommunicationStats | None
-
-    def embedded_text_files(self) -> list[TextFile]
-        return extract_embedded_text_files_from_markdown(self.content)
 
 
 @dataclass
@@ -47,3 +22,36 @@ class OllamaModel:
 class TextFile:
     path: str
     contents: str
+
+
+@dataclass
+class RawPromptRequest:
+    system_prompt: str
+    user_prompt: list[str]
+
+
+@dataclass
+class PromptStats:
+    model: str
+    done_reason: str | None
+    total_duration_s: float
+    load_duration_ms: float
+    prompt_eval_count: int
+    prompt_eval_duration_s: float
+    eval_count: int
+    eval_duration_s: float
+
+    @property
+    def tokens_in_per_second(self):
+        return self.prompt_eval_count / self.prompt_eval_duration_s
+
+    @property
+    def tokens_out_per_second(self):
+        return self.eval_count / self.eval_duration_s
+
+
+@dataclass
+class RawPromptResponse:
+    content: str
+    thinking: str
+    stats: PromptStats | None
