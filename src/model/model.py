@@ -19,9 +19,18 @@ class OllamaModel:
 
 
 @dataclass
-class TextFile:
+class ContextFile:
     path: str
-    contents: str
+
+
+@dataclass
+class TextFile(ContextFile):
+    text: str
+
+
+@dataclass
+class BinaryFile(ContextFile):
+    pass
 
 
 @dataclass

@@ -98,7 +98,7 @@ def markdown_file_block_for_text_file(text_file: TextFile):
 
     language: str = language_marker_from_file_extension(text_file.path).value
     file_path: str = text_file.path
-    contents: str = text_file.contents
+    contents: str = text_file.text
 
     return f"""
 

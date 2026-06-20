@@ -49,7 +49,7 @@ def extract_embedded_text_files_from_markdown(markdown_str: str) -> List[TextFil
             prev_line = line_stripped
         else:
             if code_end_pattern.match(line_stripped):
-                code_files.append(TextFile(contents="\n".join(code_content), path=relative_file_path))
+                code_files.append(TextFile(text="\n".join(code_content), path=relative_file_path))
                 in_code_block = False
                 relative_file_path = ""
                 code_content = []
