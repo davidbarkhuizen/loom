@@ -2,8 +2,8 @@ import uuid
 from pathlib import Path
 
 from harness.commands.abstract import AbstractHarnessCommand
+from harness.task import load_prompt_request_for_task_from_disk, write_prompt_response_elements_to_disk
 from harness.tether import prompt
-from logic.task import load_prompt_request_for_task_from_disk, write_prompt_response_elements_to_disk
 from markdown.display import display_text_as_markdown
 from markdown.render import dict_list_to_markdown_table
 from model.model import RawPromptRequest, RawPromptResponse

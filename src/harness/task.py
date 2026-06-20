@@ -1,3 +1,4 @@
+import asyncio
 import glob
 import json
 import os
@@ -71,18 +72,23 @@ async def load_user_prompt_for_task_from_disc(console, user_prompt_root_folder_p
         display_text_as_markdown(console, error)
         raise ValueError(error)
 
+    async def text_file_for_file_path(file_path: str) -> TextFile | None:
+        if await file_is_binary(file_path):
+            return None
+
+        contents: str = await read_text_file_async(Path(file_path))
+        return TextFile(path=file_path, contents=contents)
+
     user_prompt_files_folder: Path = user_prompt_root_folder_path / "files"
     user_prompt_files_glob_expression = f"{user_prompt_files_folder}/**/*.*"
-    user_prompt_text_files: list[TextFile] = [
-        TextFile(
-            path=user_spec_file_path.replace(str(user_prompt_files_folder) + "/", ""),
-            contents=await read_text_file_async(Path(user_spec_file_path)),
-        )
-        for user_spec_file_path in glob.glob(user_prompt_files_glob_expression, recursive=True)
-        if not await file_is_binary(user_spec_file_path)
-    ]
+    user_prompt_text_file_paths: list[str] = glob.glob(user_prompt_files_glob_expression, recursive=True)
+    user_prompt_text_files: list[TextFile | None] = await asyncio.gather(
+        *[text_file_for_file_path(file_path) for file_path in user_prompt_text_file_paths]
+    )
 
-    context_file_block = await context_file_block_for_text_files(user_prompt_text_files)
+    context_file_block = await context_file_block_for_text_files(
+        [text_file for text_file in user_prompt_text_files if text_file is not None]
+    )
 
     return structured_user_prompt(user_files_block=context_file_block, user_text=user_prompt_text)
 
