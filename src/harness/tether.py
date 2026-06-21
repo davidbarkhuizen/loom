@@ -11,11 +11,16 @@ def new_async_ollama_client(host: str, port: int) -> AsyncClient:
     return AsyncClient(host=f"http://{host}:{port}")
 
 
-def new_message(role: str, text: str, tool_calls: list[Message.ToolCall] | None) -> dict[str, Any]:
+def new_message(
+    role: str, text: str, tool_calls: list[Message.ToolCall] | None = None, tool_name: str | None = None
+) -> dict[str, Any]:
     core: dict[str, Any] = {"content": text, "role": role}
 
     if tool_calls is not None and len(tool_calls) > 0:
         core["tool_calls"] = tool_calls
+
+    if tool_name is not None and len(tool_name) > 0:
+        core["tool_name"] = tool_name
 
     return core
 

@@ -2,7 +2,8 @@ from typing_extensions import Any, Callable
 
 from harness.commands.abstract import AbstractHarnessCommand
 from harness.tether import prompt
-from harness.tool.tools.time import get_current_date
+from harness.tool_logic import call_tool
+from harness.tools.tools.time import get_current_date
 from model.model import RawPromptRequest, RawPromptResponse
 
 
@@ -24,16 +25,17 @@ class QueryCommand(AbstractHarnessCommand):
         initial_rq = RawPromptRequest(system_prompt="", user_prompt=[text], tools=query_tools, message_history=[])
         initial_rsp: RawPromptResponse = await prompt(self.client, model, initial_rq)
 
-        message_history: list[dict[str, Any]] = initial_rsp.message_history
-
-        for msg in message_history:
-            print(msg)
-        return False
+        message_history: list[dict[str, Any]] = list(initial_rsp.message_history)
 
         tool_calls = initial_rsp.tool_calls
         while len(tool_calls) > 0:
-            # make each tool call
-            # send the response
+            tool_call_response_messages = []
+
+            for tool_call in tool_calls:
+                tool_call_response_message: dict[str, str] = call_tool(tool_call)
+                tool_call_response_messages.append(tool_call_response_message)
+
+            message_history.extend(tool_call_response_messages)
 
             rsp: RawPromptResponse = await prompt(
                 self.client,
