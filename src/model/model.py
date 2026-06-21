@@ -1,5 +1,9 @@
 from dataclasses import dataclass
 from enum import Enum
+from typing import Callable
+
+from ollama import Message
+from typing_extensions import Any
 
 
 class ChatMessageRole(Enum):
@@ -37,6 +41,8 @@ class BinaryFile(ContextFile):
 class RawPromptRequest:
     system_prompt: str
     user_prompt: list[str]
+    tools: list[Callable]
+    message_history: list[dict[str, Any]]
 
 
 @dataclass
@@ -63,4 +69,6 @@ class PromptStats:
 class RawPromptResponse:
     content: str
     thinking: str
+    tool_calls: list[Message.ToolCall]
+    message_history: list[dict[str, str]]
     stats: PromptStats | None

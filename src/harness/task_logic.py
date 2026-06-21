@@ -19,18 +19,15 @@ def context_file_block_for_text_files(console, text_files: list[TextFile]) -> st
         encoded_file = markdown_file_block_for_text_file(TextFile(text_file.path, text_file.text))
         encoded_file_blocks.extend(encoded_file.split("\n"))
 
-        print(f"file {text_file.path} embedded into context file block")
-
     context_file_block: str = "\n".join(encoded_file_blocks)
 
     display_text_as_markdown(console, f"{len(text_files)} text files embedded into context file block:")
-    for text_file in text_files:
-        display_text_as_markdown(
-            console,
-            dict_list_to_markdown_table(
-                [{"path": text_file.path, "size (chars)": str(len(text_file.text))} for text_file in text_files]
-            ),
-        )
+    display_text_as_markdown(
+        console,
+        dict_list_to_markdown_table(
+            [{"path": text_file.path, "size (chars)": str(len(text_file.text))} for text_file in text_files]
+        ),
+    )
 
     return context_file_block
 
@@ -114,7 +111,7 @@ async def load_prompt_request_for_task_from_disk(
     if user_prompt is None:
         return None
 
-    return RawPromptRequest(system_prompt=system_prompt, user_prompt=[user_prompt])
+    return RawPromptRequest(system_prompt=system_prompt, user_prompt=[user_prompt], tools=[], message_history=[])
 
 
 async def write_prompt_response_elements_to_disk(console, rsp: RawPromptResponse, folder_path: Path) -> bool:

@@ -1,6 +1,8 @@
+from __future__ import barry_as_FLUFL
+
 from typing import Any
 
-from ollama import AsyncClient, ChatResponse
+from ollama import AsyncClient, ChatResponse, Message
 
 from model.model import ChatMessageRole, PromptStats, RawPromptRequest, RawPromptResponse
 
@@ -9,8 +11,13 @@ def new_async_ollama_client(host: str, port: int) -> AsyncClient:
     return AsyncClient(host=f"http://{host}:{port}")
 
 
-def new_message(role: str, text: str) -> dict[str, Any]:
-    return {"content": text, "role": role}
+def new_message(role: str, text: str, tool_calls: list[Message.ToolCall] | None) -> dict[str, Any]:
+    core: dict[str, Any] = {"content": text, "role": role}
+
+    if tool_calls is not None and len(tool_calls) > 0:
+        core["tool_calls"] = tool_calls
+
+    return core
 
 
 async def prompt(client: AsyncClient, model: str, rq: RawPromptRequest) -> RawPromptResponse:
@@ -20,18 +27,24 @@ async def prompt(client: AsyncClient, model: str, rq: RawPromptRequest) -> RawPr
     total_prompt_length: int = system_prompt_length + user_prompt_length
     print(f"context length (chars): {total_prompt_length} = system {system_prompt_length} + user {user_prompt_length}")
 
-    system_message = new_message(ChatMessageRole.system.value, rq.system_prompt)
-    user_messages = [new_message(ChatMessageRole.user.value, text) for text in rq.user_prompt]
-    messages: list[dict[str, Any]] = [system_message, *user_messages]
+    system_message = new_message(ChatMessageRole.system.value, rq.system_prompt, [])
+    user_messages = [new_message(ChatMessageRole.user.value, text, []) for text in rq.user_prompt]
 
-    response_text: str = ""
-    thinking_text: str = ""
-    stats: PromptStats | None = None
+    rq_messages: list[dict[str, Any]] = [*rq.message_history]
+    if len(rq.system_prompt) > 0:
+        rq_messages.append(system_message)
+
+    rq_messages.extend(user_messages)
+
+    rsp_content_text: str = ""
+    rsp_thinking_text: str = ""
+    rsp_tool_calls: list[Message.ToolCall] = list()
+    rsp_stats: PromptStats | None = None
 
     chat_responses: list[ChatResponse] = list()
 
     try:
-        async for chat_response in await client.chat(model=model, messages=messages, stream=True):
+        async for chat_response in await client.chat(model=model, messages=rq_messages, tools=rq.tools, stream=True):
             chat_responses.append(chat_response)
 
             responding_model: str | None = chat_response.model
@@ -46,40 +59,73 @@ async def prompt(client: AsyncClient, model: str, rq: RawPromptRequest) -> RawPr
 
             thinking: str | None = message.get("thinking", None)
             if thinking:
-                thinking_text += thinking
+                rsp_thinking_text += thinking
                 print(thinking, end="", flush=True)
 
             content: str = message.get("content", None)
-            if content is not None:
-                response_text += content
+            if content is not None and content != "":
+                if len(rsp_content_text) == 0:
+                    print()
+                rsp_content_text += content
                 print(content, end="", flush=True)
+
+            tool_calls = message.get("tool_calls", None)
+            if tool_calls is not None and len(tool_calls) > 0:
+                print()
+                print(tool_calls)
+                rsp_tool_calls.extend(tool_calls)
+
+            def safe_get(d: ChatResponse, key: str) -> float:
+                if key not in d.__dict__.keys():
+                    return 0
+
+                v = d.get(key, 0)
+
+                return v if v is not None else 0
+
+            def safe_divide(dividend: float | None, divisor: float) -> float:
+                if dividend is None:
+                    return 0
+                if dividend == 0:
+                    return 0
+                return dividend / divisor
 
             done: bool = chat_response.get("done", False)
             if done:
-                stats = PromptStats(
+                rsp_stats = PromptStats(
                     model=model,
                     done_reason=chat_response["done_reason"],
-                    total_duration_s=chat_response["total_duration"] / 1e9,
-                    load_duration_ms=chat_response["load_duration"] / 1e6,
-                    prompt_eval_count=chat_response["prompt_eval_count"],
-                    prompt_eval_duration_s=chat_response["prompt_eval_duration"] / 1e9,
-                    eval_count=chat_response["eval_count"],
-                    eval_duration_s=chat_response["eval_duration"] / 1e9,
+                    total_duration_s=safe_divide(chat_response.get("total_duration", None), 1e9),
+                    load_duration_ms=safe_divide(chat_response.get("load_duration", 0), 1e6),
+                    prompt_eval_count=int(safe_get(chat_response, "prompt_eval_count")),
+                    prompt_eval_duration_s=safe_divide(chat_response.get("prompt_eval_duration", None), 1e9),
+                    eval_count=int(safe_get(chat_response, "eval_count")),
+                    eval_duration_s=safe_divide(chat_response.get("eval_duration", 0), 1e9),
                 )
-    except KeyboardInterrupt:
-        return RawPromptResponse(content=response_text, thinking=thinking_text, stats=None)
 
     finally:
         with open("log.log", "a") as file:
             file.write("\n".join([str(rsp) for rsp in chat_responses]))
 
     print()
-    if stats:
+    if rsp_stats:
         print(
-            f"{stats.prompt_eval_count} prompt tokens evaluated in {stats.prompt_eval_duration_s:.2f} seconds => {stats.tokens_in_per_second:.1f} tokens per second"
+            f"{rsp_stats.prompt_eval_count} prompt tokens evaluated in {rsp_stats.prompt_eval_duration_s:.2f} seconds => {rsp_stats.tokens_in_per_second:.1f} tokens per second"
         )
         print(
-            f"{stats.eval_count} tokens generated in {stats.eval_duration_s:.2f} seconds => {stats.tokens_out_per_second:.1f} tokens per second"
+            f"{rsp_stats.eval_count} tokens generated in {rsp_stats.eval_duration_s:.2f} seconds => {rsp_stats.tokens_out_per_second:.1f} tokens per second"
         )
 
-    return RawPromptResponse(content=response_text, thinking=thinking_text, stats=stats)
+    rsp_messages: list[dict[str, Any]] = [
+        new_message(role="assistant", text=rsp_content_text, tool_calls=rsp_tool_calls)
+    ]
+
+    msg_history: list[dict[str, Any]] = [*rq_messages, *rsp_messages]
+
+    return RawPromptResponse(
+        content=rsp_content_text,
+        thinking=rsp_thinking_text,
+        stats=rsp_stats,
+        message_history=msg_history,
+        tool_calls=rsp_tool_calls,
+    )
