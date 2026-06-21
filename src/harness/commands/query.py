@@ -3,7 +3,7 @@ from typing_extensions import Any, Callable
 from harness.commands.abstract import AbstractHarnessCommand
 from harness.tether import prompt
 from harness.tool_logic import call_tool
-from harness.tools.tools.time import get_current_date
+from harness.tools.tools.temporal.time import get_current_date_time, get_day_of_week
 from model.model import RawPromptRequest, RawPromptResponse
 
 
@@ -20,9 +20,9 @@ class QueryCommand(AbstractHarnessCommand):
 
         text = " ".join(args)
 
-        query_tools: list[Callable] = [get_current_date]
+        available_tools: list[Callable] = [get_current_date_time, get_day_of_week]
 
-        initial_rq = RawPromptRequest(system_prompt="", user_prompt=[text], tools=query_tools, message_history=[])
+        initial_rq = RawPromptRequest(system_prompt="", user_prompt=[text], tools=available_tools, message_history=[])
         initial_rsp: RawPromptResponse = await prompt(self.client, model, initial_rq)
 
         message_history: list[dict[str, Any]] = list(initial_rsp.message_history)
@@ -32,7 +32,7 @@ class QueryCommand(AbstractHarnessCommand):
             tool_call_response_messages = []
 
             for tool_call in tool_calls:
-                tool_call_response_message: dict[str, str] = call_tool(tool_call)
+                tool_call_response_message: dict[str, str] = call_tool(self.console, available_tools, tool_call)
                 tool_call_response_messages.append(tool_call_response_message)
 
             message_history.extend(tool_call_response_messages)
@@ -40,7 +40,9 @@ class QueryCommand(AbstractHarnessCommand):
             rsp: RawPromptResponse = await prompt(
                 self.client,
                 model,
-                RawPromptRequest(system_prompt="", user_prompt=[], tools=query_tools, message_history=message_history),
+                RawPromptRequest(
+                    system_prompt="", user_prompt=[], tools=available_tools, message_history=message_history
+                ),
             )
             tool_calls = [*rsp.tool_calls]
             message_history = rsp.message_history
