@@ -32,7 +32,7 @@ class QueryCommand(AbstractHarnessCommand):
             tool_call_response_messages = []
 
             for tool_call in tool_calls:
-                tool_call_response_message: dict[str, str] = call_tool(self.console, available_tools, tool_call)
+                tool_call_response_message: dict[str, str] = await call_tool(self.console, available_tools, tool_call)
                 tool_call_response_messages.append(tool_call_response_message)
 
             message_history.extend(tool_call_response_messages)

@@ -1,4 +1,4 @@
-def search_internet(query: str) -> str:
+async def search_internet(query: str) -> str:
     """
     search the internet using the supplied query
 

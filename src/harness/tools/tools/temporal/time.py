@@ -1,7 +1,7 @@
 import datetime
 
 
-def get_current_date_time() -> str:
+async def get_current_date_time() -> str:
     """
     return the current system date-time as an iso-8601 format string
 
@@ -12,7 +12,7 @@ def get_current_date_time() -> str:
     return datetime.datetime.now().isoformat()
 
 
-def get_day_of_week(iso8601_datum: str) -> str:
+async def get_day_of_week(iso8601_datum: str) -> str:
     """
     return the day of the week for the datum
 

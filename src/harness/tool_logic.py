@@ -7,7 +7,7 @@ from markdown.display import display_text_as_markdown
 from markdown.render import dict_list_to_markdown_table
 
 
-def call_tool(console, tools: list[Callable], tool_call: Message.ToolCall) -> dict[str, str]:
+async def call_tool(console, tools: list[Callable], tool_call: Message.ToolCall) -> dict[str, str]:
 
     target_tool_name: str = tool_call.function.name
     tool_call_arguments: Mapping[str, Any] = tool_call.function.arguments
@@ -18,7 +18,7 @@ def call_tool(console, tools: list[Callable], tool_call: Message.ToolCall) -> di
         display_text_as_markdown(console, dict_list_to_markdown_table([tool_call_arguments]))
 
     tool_fn: Callable = [tool for tool in tools if tool.__name__ == target_tool_name][0]
-    tool_call_result: str = tool_fn(**tool_call_arguments)
+    tool_call_result: str = await tool_fn(**tool_call_arguments)
 
     display_text_as_markdown(console, f"result: {tool_call_result}")
 
