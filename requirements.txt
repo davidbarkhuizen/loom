@@ -3,3 +3,4 @@ dacite
 ollama
 tabulate
 rich
+httpx

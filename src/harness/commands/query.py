@@ -2,9 +2,9 @@ from typing_extensions import Any, Callable
 
 from harness.commands.abstract import AbstractHarnessCommand
 from harness.tether import prompt
-from harness.tool_logic import call_tool
-from harness.tools.tools.maths.arithmetic import add, divide, multiply, subtract
-from harness.tools.tools.temporal.time import get_current_date_time, get_day_of_week
+from harness.tool.tool_logic import call_tool
+from harness.tool.tools.maths.arithmetic import add, divide, multiply, subtract
+from harness.tool.tools.temporal.time import get_current_date_time, get_day_of_week
 from model.model import RawPromptRequest, RawPromptResponse
 
 
