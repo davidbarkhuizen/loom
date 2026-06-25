@@ -3,7 +3,8 @@
 - support templates in system spec
   * to allow re-use / keep templates DRY
   * e.g. response format
-  * 
+  * e.g root system prompt should contain the current date and be shared by all system prompts
+
 ## spec driven development
 
 1. distillation of specification

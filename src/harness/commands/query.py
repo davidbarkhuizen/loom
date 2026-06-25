@@ -3,8 +3,8 @@ from typing_extensions import Any, Callable
 from harness.commands.abstract import AbstractHarnessCommand
 from harness.tether import prompt
 from harness.tool.tool_logic import call_tool
-from harness.tool.tools.maths.arithmetic import add, divide, multiply, subtract
-from harness.tool.tools.temporal.time import get_current_date_time, get_day_of_week
+from harness.tool.tool_model import Tool
+from harness.tool.tool_registry import load_tools
 from model.model import RawPromptRequest, RawPromptResponse
 
 
@@ -21,7 +21,7 @@ class QueryCommand(AbstractHarnessCommand):
 
         text = " ".join(args)
 
-        available_tools: list[Callable] = [get_current_date_time, get_day_of_week, add, subtract, divide, multiply]
+        available_tools: list[Callable] = [tool.function for tool in load_tools()]
 
         initial_rq = RawPromptRequest(system_prompt="", user_prompt=[text], tools=available_tools, message_history=[])
         initial_rsp: RawPromptResponse = await prompt(self.client, model, initial_rq)

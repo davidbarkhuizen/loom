@@ -2,10 +2,15 @@ from urllib.parse import urlencode
 
 import httpx
 
+from harness.tool.tool_model import Tool, ToolTag
+
 
 async def http_get_json(url) -> dict:
     async with httpx.AsyncClient() as client:
-        response = await client.get(url)
+        response = await client.get(
+            url,
+            headers={"user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0"},
+        )
         response.raise_for_status()
         return response.json()
 
@@ -15,22 +20,18 @@ async def search_duckduckgo(query):
     Query DuckDuckGo Instant Answer API.
     Returns JSON data containing abstracts, answers, and related topics.
     """
-    url_base: str = "https://api.duckduckgo.com/"
+
     p = {
         "q": query,
-        "format": "json",
-        "no_redirect": 1,  # Prevent redirects
-        "no_html": 1,  # Disable HTML in output
-        "skip_disambiguation": 1,  # Skip disambiguation pages
     }
 
-    url: str = f"{url_base}{urlencode(p)}"
+    url: str = f"https://www.searchapi.io/api/v1/search?engine=duckduckgo&{urlencode(p)}"
     response_json: dict = await http_get_json(url)  # Raise error for bad status codes
 
     return response_json
 
 
-async def search_internet(query: str) -> str:
+async def search(query: str) -> str:
     """
     search the internet using the supplied query
 
@@ -47,3 +48,7 @@ async def search_internet(query: str) -> str:
     print(response)
 
     return str(response)
+
+
+def new_tool() -> Tool:
+    return Tool("search-internet", search, [ToolTag.SEARCH, ToolTag.INTERNET])

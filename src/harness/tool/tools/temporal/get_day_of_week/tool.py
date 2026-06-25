@@ -1,15 +1,6 @@
 import datetime
 
-
-async def get_current_date_time() -> str:
-    """
-    return the current system date-time as an iso-8601 format string
-
-    Returns:
-        A string corresponding to the current system date-time in ISO format YYYY-MM-DD HH:MM:SS.mmmmmm
-    """
-
-    return datetime.datetime.now().isoformat()
+from harness.tool.tool_model import Tool, ToolTag
 
 
 async def get_day_of_week(iso8601_datum: str) -> str:
@@ -24,3 +15,7 @@ async def get_day_of_week(iso8601_datum: str) -> str:
     """
 
     return datetime.datetime.fromisoformat(iso8601_datum).strftime("%A")
+
+
+def new_tool() -> Tool:
+    return Tool("get-day-of-week", get_day_of_week, [ToolTag.TEMPORAL])

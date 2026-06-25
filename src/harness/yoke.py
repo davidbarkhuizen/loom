@@ -10,6 +10,7 @@ from harness.commands.help import HelpCommand
 from harness.commands.list_commands import ListCommandsCommand
 from harness.commands.list_models import ListModelsCommand
 from harness.commands.list_tasks import ListTasksCommand
+from harness.commands.list_tools import ListToolsCommand
 from harness.commands.ps import PSCommand
 from harness.commands.query import QueryCommand
 from harness.commands.switch_model import SwitchModelCommand
@@ -84,6 +85,7 @@ async def harness_llm(client: AsyncClient, config: YokeConfig):
                     PSCommand,
                     HelpCommand,
                     ListTasksCommand,
+                    ListToolsCommand,
                 ]
             ]
         )
