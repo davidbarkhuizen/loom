@@ -32,7 +32,7 @@ def context_file_block_for_text_files(console, text_files: list[TextFile]) -> st
     return context_file_block
 
 
-def structured_user_prompt(console, text: str, text_files: list[TextFile]) -> str:
+def structured_user_prompt_from_text_and_files(console, text: str, text_files: list[TextFile]) -> str:
 
     context_file_block = context_file_block_for_text_files(console, text_files)
 
@@ -100,7 +100,7 @@ async def load_user_prompt_for_task_from_disk(console, user_prompt_root_folder_p
         context_file for context_file in user_prompt_context_files if isinstance(context_file, TextFile)
     ]
 
-    return structured_user_prompt(console, text=user_prompt_text, text_files=user_prompt_text_files)
+    return structured_user_prompt_from_text_and_files(console, text=user_prompt_text, text_files=user_prompt_text_files)
 
 
 async def load_prompt_request_for_task_from_disk(

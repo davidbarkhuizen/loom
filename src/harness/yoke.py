@@ -6,16 +6,16 @@ from rich.console import Console
 from typing_extensions import Callable
 
 from config import YokeConfig
-from harness.commands.abstract import AbstractHarnessCommand
-from harness.commands.help import HelpCommand
-from harness.commands.list_commands import ListCommandsCommand
-from harness.commands.list_models import ListModelsCommand
-from harness.commands.list_tasks import ListTasksCommand
-from harness.commands.list_tools import ListToolsCommand
-from harness.commands.ps import PSCommand
-from harness.commands.query import QueryCommand
-from harness.commands.switch_model import SwitchModelCommand
-from harness.commands.task import TaskCommand
+from harness.command.abstract import AbstractHarnessCommand
+from harness.command.commands.help import HelpCommand
+from harness.command.commands.list_commands import ListCommandsCommand
+from harness.command.commands.list_models import ListModelsCommand
+from harness.command.commands.list_tasks import ListTasksCommand
+from harness.command.commands.list_tools import ListToolsCommand
+from harness.command.commands.ps import PSCommand
+from harness.command.commands.query import QueryCommand
+from harness.command.commands.switch_model import SwitchModelCommand
+from harness.command.commands.task import TaskCommand
 from harness.tether import new_async_ollama_client
 from markdown.display import display_text_as_markdown, new_markdown_console
 

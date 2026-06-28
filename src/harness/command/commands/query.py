@@ -1,4 +1,4 @@
-from harness.commands.abstract import AbstractHarnessCommand
+from harness.command.abstract import AbstractHarnessCommand
 from harness.tether import prompt_and_handle_tool_calls
 from harness.tool.tool_registry import load_tools
 from model.model import RawPromptRequest, Tool

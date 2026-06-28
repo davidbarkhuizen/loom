@@ -1,4 +1,4 @@
-from harness.commands.abstract import AbstractHarnessCommand
+from harness.command.abstract import AbstractHarnessCommand
 from markdown.display import display_text_as_markdown
 
 

@@ -1,6 +1,6 @@
 from ollama._types import ListResponse
 
-from harness.commands.abstract import AbstractHarnessCommand
+from harness.command.abstract import AbstractHarnessCommand
 from markdown.display import display_text_as_markdown
 from markdown.render import dict_list_to_markdown_table
 

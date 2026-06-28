@@ -5,7 +5,7 @@ from rich.console import Console
 from typing_extensions import Sequence
 
 from config import YokeConfig
-from harness.commands.abstract import AbstractHarnessCommand
+from harness.command.abstract import AbstractHarnessCommand
 from markdown.display import display_text_as_markdown
 
 

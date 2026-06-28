@@ -1,7 +1,7 @@
 import uuid
 from pathlib import Path
 
-from harness.commands.abstract import AbstractHarnessCommand
+from harness.command.abstract import AbstractHarnessCommand
 from harness.task_logic import load_prompt_request_for_task_from_disk, write_prompt_response_elements_to_disk
 from harness.tether import prompt
 from markdown.display import display_text_as_markdown
